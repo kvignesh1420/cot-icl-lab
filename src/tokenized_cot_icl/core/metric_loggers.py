@@ -101,7 +101,7 @@ class MLFlowMetricLogger(MetricLogger):
                 )
 
     def close(self):
-        """Logs the termination message to MLFlow"""
+        """Terminates the mlflow run"""
         if self.device_id == 0:
             self.mlflow_client.set_terminated(self.run.info.run_id)
 
