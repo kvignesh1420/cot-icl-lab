@@ -48,6 +48,7 @@ args = Args(
       n_examples=1,
       enable_cot=True,
       prompt_strategy="cot",
+      activation="leaky_relu",
       n_tasks=10,
 )
 
@@ -83,8 +84,43 @@ The `'adj_list': tensor([[0, 2], [4, 3], [5, 3]])` (based on zero-indexing) indi
 - $y_3 \leftarrow \{y_2, x_4\}$
 
 >[!NOTE]
-> The TokenCoverage metric introduced in the paper relies on the uniqueness of chain tokens in the entire dataset and depends heavily on the vocabulary size. Thus controlling the difficulty of the tasks.
+> The TokenCoverage metric introduced in the paper relies on the uniqueness of chain tokens in the entire dataset and depends heavily on the "vocab_size" and "activation". Thus controlling the difficulty of the tasks.
 
+## Training
+
+### Setting the `TASK_CARD`
+
+To make it suitable for bulk launching the experiments, we rely on a `TASK_CARD` to collate all the args. For instance, to train a model with the args as per the above example, we do:
+
+```py
+# tokenized_cot_icl/core/task_card.py
+
+def custom_task_card() -> Dict[int, Args]:
+    """A custom task card."""    
+      args = Args(
+            vocab_size=1024,
+            n_inputs=4,
+            n_parents=2,
+            chain_length=3,
+            n_examples=1,
+            enable_cot=True,
+            prompt_strategy="cot",
+            activation="leaky_relu",
+            n_tasks=10,
+      )
+    return {0: args}
+
+# set the dictionary
+TASK_CARD = custom_task_card()
+```
+
+### Launch the DDP Training
+
+The `TASK_CARD` allows us to index into the experimental config of our choice and launch the torch distributed data parallel (DDP) training runs. For example:
+
+```bash
+(.venv) $ cd src &&  python tokenized_cot_icl/core/train.py --task_card_key 0
+```
 
 
 ## License
