@@ -109,7 +109,7 @@ TASK_CARD = custom_task_card()
 The `TASK_CARD` allows us to index into the experimental config of our choice and launch the torch distributed data parallel (DDP) training runs. For example:
 
 ```bash
-(.venv) $ cd src &&  python tokenized_cot_icl/core/train.py --task_card_key 0
+(.venv) $ cd src && python tokenized_cot_icl/core/train.py --task_card_key 0
 ```
 
 ### Metric Logging
@@ -127,7 +127,7 @@ In addition to using the `transformers.GenerationConfig` for small scale inferen
 We provide an easy to extend example for calculating the answer token prediction accuracy as follows:
 
 ```bash
-(.venv) $ cd src &&  python tokenized_cot_icl/inference/vllm/eval.py \
+(.venv) $ cd src && python tokenized_cot_icl/inference/vllm/eval.py \
                         --output_dir /opt/cot-icl-lab/... \ # set the path
                         --checkpoint final  # either final or 1000, 2000 etc.
 ```
