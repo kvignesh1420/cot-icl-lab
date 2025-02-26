@@ -31,6 +31,45 @@ $ source .venv/bin/activate
 (.venv) $ ./beautify.sh
 ```
 
+## Getting Started
+
+Our framework serves as a test bed to generate synthetic tokenized datasets for training and evaluating transformer models. We do so by using `DAG` and `TokenProcessor` classes. These can be configured directly by the `Args` dataclass. For example:
+
+```py
+
+from tokenized_cot_icl.core.args import Args
+from tokenized_cot_icl.core.data import TokenizedDataset
+
+args = Args(
+      vocab_size=1024,
+      n_inputs=4,
+      n_parents=2,
+      chain_length=3,
+      n_examples=1,
+      enable_cot=True,
+      prompt_strategy="cot",
+      n_tasks=10,
+)
+
+dataset = TokenizedDataset(args=args)
+print(dataset[0])
+# 
+# {
+#     'adj_list': tensor([[0, 2], [4, 3], [5, 3]]),
+#     'attention_mask': tensor([1, 1, 1, 1, 1, 1, 1]),
+#     'input_ids': tensor([ 556,  197, 1002,  867,  240,  466,  217]),
+#     'labels': tensor([-100, -100, -100, -100,  240,  466,  217])},
+#     'cot_eval': 
+#           {
+#                 'attention_mask': tensor([1, 1, 1, 1]),
+#                 'input_ids': tensor([ 556,  197, 1002,  867]),
+#                 'last_example_cot': tensor([240, 466, 217])
+#           }
+# },
+
+```
+
+
 ## License
 
 [MIT License](LICENSE)
