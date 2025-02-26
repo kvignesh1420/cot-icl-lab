@@ -3,10 +3,9 @@
 import abc
 import logging
 import os
+from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
-
-from datetime import datetime
 
 
 class MetricLogger(abc.ABC):
@@ -75,17 +74,13 @@ class MLFlowMetricLogger(MetricLogger):
         self.mlflow_client = mlflow.client.MlflowClient()
         experiment_name = f"cot-icl-lab-{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}"
         experiment = mlflow.set_experiment(experiment_name)
-        self.run = self.mlflow_client.create_run(
-            experiment_id=experiment.experiment_id, run_name=self.run_name
-        )
+        self.run = self.mlflow_client.create_run(experiment_id=experiment.experiment_id, run_name=self.run_name)
 
     def log_params(self, params: dict):
         """Logs the parameters to MLFlow"""
         if self.device_id == 0:
             for key, value in params.items():
-                self.mlflow_client.log_param(
-                    run_id=self.run.info.run_id, key=key, value=value
-                )
+                self.mlflow_client.log_param(run_id=self.run.info.run_id, key=key, value=value)
 
     def log_metrics(self, metrics: dict, step: int):
         """Logs the metrics to MLFlow"""

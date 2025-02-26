@@ -26,10 +26,7 @@ class TokenProcessor(nn.Module):
         self.activation_fn = get_activation_fn(args=self.args)
         self.num_layers = self.args.H_num_layers
         self.layers = nn.ModuleList(
-            [
-                nn.Linear(self.args.n_dims, self.args.n_dims, bias=False)
-                for _ in range(self.num_layers)
-            ]
+            [nn.Linear(self.args.n_dims, self.args.n_dims, bias=False) for _ in range(self.num_layers)]
         )
         for layer in self.layers:
             torch.nn.init.normal_(layer.weight)

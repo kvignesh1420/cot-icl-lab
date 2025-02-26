@@ -26,9 +26,7 @@ def test_standard_prompt():
         assert key in prompt_info
     assert prompt_info["input_ids"].tolist() == [1, 2, 3, 6, 7, 8, 9, 12]
     assert prompt_info["attention_mask"].tolist() == [1] * 8
-    assert prompt_info["labels"].tolist() == [IGNORE_INDEX] * 3 + [6] + [
-        IGNORE_INDEX
-    ] * 3 + [12]
+    assert prompt_info["labels"].tolist() == [IGNORE_INDEX] * 3 + [6] + [IGNORE_INDEX] * 3 + [12]
 
     assert prompt_info["cot_eval"]["input_ids"].tolist() == [1, 2, 3, 6, 7, 8, 9]
     assert prompt_info["cot_eval"]["attention_mask"].tolist() == [1] * 7
@@ -49,9 +47,7 @@ def test_cot_prompt():
         assert key in prompt_info
     assert prompt_info["input_ids"].tolist() == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     assert prompt_info["attention_mask"].tolist() == [1] * 12
-    assert prompt_info["labels"].tolist() == [IGNORE_INDEX] * 3 + [4, 5, 6] + [
-        IGNORE_INDEX
-    ] * 3 + [10, 11, 12]
+    assert prompt_info["labels"].tolist() == [IGNORE_INDEX] * 3 + [4, 5, 6] + [IGNORE_INDEX] * 3 + [10, 11, 12]
 
     assert prompt_info["cot_eval"]["input_ids"].tolist() == [1, 2, 3, 4, 5, 6, 7, 8, 9]
     assert prompt_info["cot_eval"]["attention_mask"].tolist() == [1] * 9

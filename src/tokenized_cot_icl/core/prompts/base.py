@@ -74,15 +74,9 @@ class BasePrompt(abc.ABC):
                 example_input_ids = example_info["example_input_ids"]
                 example_attention_mask = example_info["example_attention_mask"]
             else:
-                example_input_ids = example_info["example_input_ids"][
-                    : example_info["cot_eval_input_mask_length"]
-                ]
+                example_input_ids = example_info["example_input_ids"][: example_info["cot_eval_input_mask_length"]]
                 example_attention_mask = [1] * len(example_input_ids)
-                last_example_cot = [
-                    label
-                    for label in example_info["example_labels"]
-                    if label != IGNORE_INDEX
-                ]
+                last_example_cot = [label for label in example_info["example_labels"] if label != IGNORE_INDEX]
 
             input_ids.extend(example_input_ids)
             attention_mask.extend(example_attention_mask)

@@ -1,13 +1,13 @@
 """Training"""
 
 import argparse
+import json
 
 # set logging level to INFO
 import logging
 import os
+from dataclasses import asdict
 from datetime import timedelta
-
-logging.basicConfig(level=logging.INFO)
 
 import torch
 import torch.distributed as dist
@@ -18,17 +18,13 @@ from torch.utils.data import DataLoader
 from transformers import GenerationConfig
 
 from tokenized_cot_icl.core.args import IGNORE_INDEX, Args
-from tokenized_cot_icl.core.data import (
-    EvalTokenizedDataset,
-    TokenizedDataset,
-)
+from tokenized_cot_icl.core.data import EvalTokenizedDataset, TokenizedDataset
 from tokenized_cot_icl.core.metric_loggers import METRIC_LOGGER_REGISTRY, MetricLogger
 from tokenized_cot_icl.core.models import MODEL_REGISTRY
 from tokenized_cot_icl.core.task_card import TASK_CARD
-from tokenized_cot_icl.core.utils import (
-    prepare_run_name,
-    set_random_seed,
-)
+from tokenized_cot_icl.core.utils import prepare_run_name, set_random_seed
+
+logging.basicConfig(level=logging.INFO)
 
 
 class Trainer:
@@ -39,14 +35,22 @@ class Trainer:
         self.train_dataset_clz = TokenizedDataset
         self.eval_dataset_clz = EvalTokenizedDataset
         self.collate_fn = None
+        self.create_output_dir()
         self.create_model()
         self.create_dataloaders()
         self.create_metric_logger()
 
+    def create_output_dir(self):
+        if self.device_id == 0:
+            os.makedirs(os.path.join(self.args.output_dir, self.run_name), exist_ok=True)
+            # save the args to the output directory
+            args_file = os.path.join(self.args.output_dir, self.run_name, "args.json")
+            with open(args_file, "w") as f:
+                json.dump(asdict(self.args), f, indent=4)
+            logging.info(f"Saved args to {args_file}")
+
     def create_metric_logger(self):
-        assert args.metric_logger in METRIC_LOGGER_REGISTRY, (
-            f"Metric logger {args.metric_logger} not supported."
-        )
+        assert args.metric_logger in METRIC_LOGGER_REGISTRY, f"Metric logger {args.metric_logger} not supported."
         self.metric_logger: MetricLogger = METRIC_LOGGER_REGISTRY[args.metric_logger](
             run_name=self.run_name, device_id=self.device_id
         )
@@ -80,9 +84,9 @@ class Trainer:
         # eval (set a different random seed for eval dataset since it is materialized during creation)
         set_random_seed(self.args.seed + 1000)
         eval_dataset = self.eval_dataset_clz(self.args)
-        assert torch.allclose(
-            train_dataset.embeddings.weight, eval_dataset.embeddings.weight
-        ), "Embeddings are not shared between train and eval datasets."
+        assert torch.allclose(train_dataset.embeddings.weight, eval_dataset.embeddings.weight), (
+            "Embeddings are not shared between train and eval datasets."
+        )
         assert len(train_dataset) == self.args.n_tasks, (
             f"Train dataset length {len(train_dataset)} does not match number of tasks {self.args.n_tasks}."
         )
@@ -110,9 +114,7 @@ class Trainer:
     def train(self):
         # print model summary and parameter count
         logging.info(self.model)
-        logging.info(
-            f"Number of parameters: {sum(p.numel() for p in self.model.parameters())}"
-        )
+        logging.info(f"Number of parameters: {sum(p.numel() for p in self.model.parameters())}")
 
         # get metrics with the initialized model as a baseline
         self.metrics_at_init()
@@ -131,9 +133,7 @@ class Trainer:
                 labels = batch["labels"].cuda(self.device_id)
 
                 # Forward pass
-                outputs = self.model(
-                    input_ids, attention_mask=attention_mask, labels=labels
-                )
+                outputs = self.model(input_ids, attention_mask=attention_mask, labels=labels)
                 loss = outputs.loss
 
                 # Backward pass and optimization
@@ -142,9 +142,7 @@ class Trainer:
 
                 # Log to MLFlow
                 if training_step % self.args.log_every_n_steps == 0:
-                    self.metric_logger.log_metrics(
-                        metrics={"train_loss": loss.item()}, step=training_step
-                    )
+                    self.metric_logger.log_metrics(metrics={"train_loss": loss.item()}, step=training_step)
 
                 # Evaluate
                 if training_step % self.args.eval_every_n_steps == 0:
@@ -182,9 +180,7 @@ class Trainer:
         max_new_tokens = self.args.chain_length if self.args.enable_cot else 1
         # Initialize chain losses and accuracies
         chain_losses = [0.0 for _ in range(max_new_tokens)]
-        chain_prediction_acc = [
-            {"correct": 0.0, "total": 0.0} for _ in range(max_new_tokens)
-        ]
+        chain_prediction_acc = [{"correct": 0.0, "total": 0.0} for _ in range(max_new_tokens)]
         for batch in self.eval_loader:
             input_ids = batch["cot_eval"]["input_ids"].cuda(self.device_id)
             attention_mask = batch["cot_eval"]["attention_mask"].cuda(self.device_id)
@@ -233,9 +229,7 @@ class Trainer:
                 chain_prediction_acc[chain_idx]["correct"] += correct
                 chain_prediction_acc[chain_idx]["total"] += labels.shape[0]
 
-        for chain_idx, (loss, pred_info) in enumerate(
-            zip(chain_losses, chain_prediction_acc)
-        ):
+        for chain_idx, (loss, pred_info) in enumerate(zip(chain_losses, chain_prediction_acc)):
             avg_loss = loss / len(self.eval_loader)
             self.metric_logger.log_metrics(
                 metrics={f"cot_eval_loss_chain_idx_{chain_idx}": avg_loss},
@@ -257,9 +251,7 @@ class Trainer:
 
     def save_checkpoint(self, step: int):
         if self.device_id == 0:
-            checkpoint_dir = os.path.join(
-                self.args.output_dir, self.run_name, "checkpoints", str(step)
-            )
+            checkpoint_dir = os.path.join(self.args.output_dir, self.run_name, "checkpoints", str(step))
             if not os.path.exists(checkpoint_dir):
                 os.makedirs(checkpoint_dir)
             logging.info(f"Saving checkpoint to {checkpoint_dir}")
@@ -267,9 +259,7 @@ class Trainer:
 
     def save_eval_dataset(self):
         if self.device_id == 0:
-            eval_dataset_dir = os.path.join(
-                self.args.output_dir, self.run_name, "eval_dataset"
-            )
+            eval_dataset_dir = os.path.join(self.args.output_dir, self.run_name, "eval_dataset")
             if not os.path.exists(eval_dataset_dir):
                 os.makedirs(eval_dataset_dir)
             logging.info(f"Saving eval dataset to {eval_dataset_dir}")
@@ -293,9 +283,7 @@ if __name__ == "__main__":
     torch.cuda.set_device(device_id)
     logging.info(f"=> set cuda device = {device_id}")
 
-    dist.init_process_group(
-        backend="nccl", init_method="env://", timeout=timedelta(seconds=300)
-    )
+    dist.init_process_group(backend="nccl", init_method="env://", timeout=timedelta(seconds=300))
 
     trainer = Trainer(args=args, device_id=device_id)
     trainer.train()

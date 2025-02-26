@@ -29,9 +29,7 @@ class CoTPrompt(StandardPrompt):
         ]
         example_attention_mask = [1] * len(example_input_ids)
         example_labels = deepcopy(example_input_ids)
-        example_labels[: len(example["input_tokens"])] = [IGNORE_INDEX] * len(
-            example["input_tokens"]
-        )
+        example_labels[: len(example["input_tokens"])] = [IGNORE_INDEX] * len(example["input_tokens"])
 
         return {
             "example_input_ids": example_input_ids,

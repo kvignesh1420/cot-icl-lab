@@ -41,17 +41,13 @@ class Args:
     data_initializer_range: float = 1  # Initializer range for the data embeddings
 
     # Function class G
-    dag_strategy: str = "random"  # Strategy to generate the DAG ('random', 'markov')
-    ablation_fixed_dag: bool = (
-        False  # If True, use a fixed DAG for all tasks (train and eval)
-    )
+    dag_strategy: str = "random"  # Strategy to generate the DAG
+    ablation_fixed_dag: bool = False  # If True, use a fixed DAG for all tasks (train and eval)
 
     # Function class H
     activation: str = "leaky_relu"  # Activation function for the linear layers
     H_num_layers: int = 1  # Number of layers in the function class H of FCNs
-    ablation_fixed_H: bool = (
-        False  # If True, use a fixed H for all tasks (train and eval)
-    )
+    ablation_fixed_H: bool = False  # If True, use a fixed H for all tasks (train and eval)
     # Number of unique H functions to use. -1 means use all unique H functions.
     # Set this only when ablation_fixed_H is True
     num_unique_H: int = -1

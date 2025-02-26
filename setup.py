@@ -5,9 +5,7 @@ from setuptools import find_packages, setup
 install_requires = open("src/requirements.txt").read().splitlines()
 
 if platform.system().lower() == "linux":
-    install_requires.extend(
-        ["liger-kernel==0.4.2", "triton==3.0.0", "torch==2.4.0+cu118"]
-    )
+    install_requires.extend(["liger-kernel==0.4.2", "triton==3.0.0", "torch==2.4.0+cu118"])
 
 setup(
     name="cot-icl-lab",

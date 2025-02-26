@@ -1,14 +1,14 @@
 """Common utilities"""
 
 import logging
-
-logging.basicConfig(level=logging.INFO)
-
 import random
+from datetime import datetime
 
 import numpy as np
 
 from tokenized_cot_icl.core.args import Args
+
+logging.basicConfig(level=logging.INFO)
 
 
 def set_random_seed(seed: int):
@@ -44,4 +44,5 @@ def prepare_run_name(args: Args) -> str:
         f"data_std_{args.data_initializer_range}",
         f"cot_{args.enable_cot}",
     ]
-    return "_".join(substrings)
+    run_name = "_".join(substrings) + f"_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    return run_name

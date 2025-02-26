@@ -28,19 +28,14 @@ def get_cached_embeddings(vocab_size: int, n_dims: int, std: float) -> nn.Embedd
 def get_cached_token_processors(args: Args) -> nn.ModuleList:
     assert args.ablation_fixed_H, "This function is only for fixed H ablation"
     count = args.num_unique_H
-    return [
-        nn.ModuleList([TokenProcessor(args=args) for _ in range(args.chain_length)])
-        for _ in range(count)
-    ]
+    return [nn.ModuleList([TokenProcessor(args=args) for _ in range(args.chain_length)]) for _ in range(count)]
 
 
 @lru_cache(maxsize=1)
 def get_cached_adj_list(args: Args) -> list:
     assert args.ablation_fixed_dag, "This function is only for fixed DAG ablation"
     dag_cls = DAG_REGISTRY[args.dag_strategy]
-    dag = dag_cls(
-        n_inputs=args.n_inputs, n_parents=args.n_parents, chain_length=args.chain_length
-    )
+    dag = dag_cls(n_inputs=args.n_inputs, n_parents=args.n_parents, chain_length=args.chain_length)
     return dag.generate_adj_list()
 
 
@@ -54,9 +49,7 @@ class TokenizedDataset(Dataset):
         )
         self.activation_fn = get_activation_fn(args=self.args)
         self.dag_cls = DAG_REGISTRY[self.args.dag_strategy]
-        self.prompt: BasePrompt = PROMPT_REGISTRY[self.args.prompt_strategy](
-            args=self.args
-        )
+        self.prompt: BasePrompt = PROMPT_REGISTRY[self.args.prompt_strategy](args=self.args)
         # warm up the caches across all ranks (since the same seed is being used at init)
         if args.ablation_fixed_H:
             _ = get_cached_token_processors(self.args)
@@ -71,30 +64,20 @@ class TokenizedDataset(Dataset):
         # prepare the same token processors if ablation_fixed_H is enabled
         if self.args.ablation_fixed_H:
             token_processors_choices = get_cached_token_processors(self.args)
-            self.token_processors = token_processors_choices[
-                np.random.randint(self.args.num_unique_H)
-            ]
+            self.token_processors = token_processors_choices[np.random.randint(self.args.num_unique_H)]
         else:
             self.token_processors = nn.ModuleList(
                 [TokenProcessor(args=self.args) for _ in range(self.args.chain_length)]
             )
 
-    def get_output_token(
-        self, available_tokens: list, adj_list: list, chain_idx: int
-    ) -> int:
+    def get_output_token(self, available_tokens: list, adj_list: list, chain_idx: int) -> int:
         parent_indices = adj_list[chain_idx]
         parent_tokens = [available_tokens[idx] for idx in parent_indices]
-        parent_embeddings = self.embeddings(
-            torch.tensor(parent_tokens)
-        )  # shape: (self.args.M, self.args.n_dims)
+        parent_embeddings = self.embeddings(torch.tensor(parent_tokens))  # shape: (self.args.M, self.args.n_dims)
 
         # apply token processors to the parent embeddings
-        token_processor = self.token_processors[
-            chain_idx
-        ]  # shape: (self.args.n_dims, self.args.n_dims)
-        output = token_processor(
-            parent_embeddings
-        )  # shape: (self.args.M, self.args.n_dims)
+        token_processor = self.token_processors[chain_idx]  # shape: (self.args.n_dims, self.args.n_dims)
+        output = token_processor(parent_embeddings)  # shape: (self.args.M, self.args.n_dims)
         output = output.mean(dim=0)  # shape: (self.args.n_dims)
         output = self.activation_fn(output)  # shape: (self.args.n_dims)
         # project the output to the vocabulary size
@@ -110,9 +93,7 @@ class TokenizedDataset(Dataset):
         # add self.args.N integers (token ids) as input
         assert len(adj_list) == self.args.chain_length
         effective_vocab_size = self.args.vocab_size - len(self.args.reserved_token_ids)
-        input_tokens = np.random.randint(
-            effective_vocab_size, size=self.args.n_inputs
-        ).tolist()
+        input_tokens = np.random.randint(effective_vocab_size, size=self.args.n_inputs).tolist()
         available_tokens = deepcopy(input_tokens)
         chain_tokens = []
         for chain_idx in range(self.args.chain_length):
@@ -122,8 +103,7 @@ class TokenizedDataset(Dataset):
                 chain_idx=chain_idx,
             )
             assert output_token not in self.args.reserved_token_ids, (
-                f"output token: {output_token} is one of the reserved tokens: "
-                f"{self.args.reserved_token_ids}"
+                f"output token: {output_token} is one of the reserved tokens: {self.args.reserved_token_ids}"
             )
             # add the output token to the input tokens
             available_tokens.append(output_token)
