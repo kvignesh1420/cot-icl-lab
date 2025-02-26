@@ -97,17 +97,7 @@ To make it suitable for bulk launching the experiments, we rely on a `TASK_CARD`
 
 def custom_task_card() -> Dict[int, Args]:
     """A custom task card."""    
-      args = Args(
-            vocab_size=1024,
-            n_inputs=4,
-            n_parents=2,
-            chain_length=3,
-            n_examples=1,
-            enable_cot=True,
-            prompt_strategy="cot",
-            activation="leaky_relu",
-            n_tasks=10,
-      )
+      args = Args(...) # set as needed
     return {0: args}
 
 # set the dictionary
@@ -122,6 +112,10 @@ The `TASK_CARD` allows us to index into the experimental config of our choice an
 (.venv) $ cd src &&  python tokenized_cot_icl/core/train.py --task_card_key 0
 ```
 
+### Metric Logging
+
+- By default, we use `metric_logger: str = "stdout"` in the `Args` dataclass and log the metrics/params to `STDOUT`. 
+- We also support logging to an [MLFlow](https://mlflow.org/docs/latest/tracking.html) tracking server by setting the `MLFLOW_SERVICE_URL` environment variable and using `Args(metric_logger="mlflow")`.
 
 ## License
 
