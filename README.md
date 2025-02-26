@@ -62,14 +62,14 @@ The above item in the dataset is as follows:
     'adj_list': tensor([[0, 2], [4, 3], [5, 3]]),
     'attention_mask': tensor([1, 1, 1, 1, 1, 1, 1]),
     'input_ids': tensor([ 556,  197, 1002,  867,  240,  466,  217]),
-    'labels': tensor([-100, -100, -100, -100,  240,  466,  217])},
+    'labels': tensor([-100, -100, -100, -100,  240,  466,  217]),
     'cot_eval': 
           {
                 'attention_mask': tensor([1, 1, 1, 1]),
                 'input_ids': tensor([ 556,  197, 1002,  867]),
                 'last_example_cot': tensor([240, 466, 217])
           }
-},
+}
 ```
 
 ### Understanding the DAG structure
@@ -81,6 +81,9 @@ The `'adj_list': tensor([[0, 2], [4, 3], [5, 3]])` (based on zero-indexing) indi
 - $y_1 \leftarrow \{x_1, x_3\}$
 - $y_2 \leftarrow \{y_1, x_4\}$
 - $y_3 \leftarrow \{y_2, x_4\}$
+
+>[!NOTE]
+> The TokenCoverage metric introduced in the paper relies on the uniqueness of chain tokens in the entire dataset and depends heavily on the vocabulary size. Thus controlling the difficulty of the tasks.
 
 
 
