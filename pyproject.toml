@@ -1,0 +1,17 @@
+[tool.ruff]
+line-length = 90
+target-version = "py312"
+fix = true
+unsafe-fixes = true
+show-fixes = true
+extend-exclude = []
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+fixable = ["ALL"]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*.py" = ["E501"]

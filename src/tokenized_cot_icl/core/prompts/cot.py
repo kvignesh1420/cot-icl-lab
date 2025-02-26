@@ -1,8 +1,7 @@
-from typing import List
-
 from copy import deepcopy
-from typing import Dict
-from tokenized_cot_icl.core.args import Args, IGNORE_INDEX
+from typing import Dict, List
+
+from tokenized_cot_icl.core.args import IGNORE_INDEX, Args
 from tokenized_cot_icl.core.prompts.standard import StandardPrompt
 
 

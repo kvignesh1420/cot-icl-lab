@@ -1,7 +1,6 @@
-from tokenized_cot_icl.core.args import Args, IGNORE_INDEX
+from tokenized_cot_icl.core.args import IGNORE_INDEX, Args
 from tokenized_cot_icl.core.prompts.base import BasePrompt
 from tokenized_cot_icl.core.prompts.registry import PROMPT_REGISTRY
-
 
 DATA = {
     "n_inputs": 3,

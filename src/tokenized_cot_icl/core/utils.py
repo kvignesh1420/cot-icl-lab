@@ -5,6 +5,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 import random
+
 import numpy as np
 
 from tokenized_cot_icl.core.args import Args

@@ -1,36 +1,34 @@
 """Training"""
 
-import os
 import argparse
-from datetime import timedelta
 
 # set logging level to INFO
 import logging
+import os
+from datetime import timedelta
 
 logging.basicConfig(level=logging.INFO)
 
 import torch
-import torch.nn as nn
-from torch.nn.parallel import DistributedDataParallel
-
 import torch.distributed as dist
+import torch.nn as nn
 from torch.distributed.elastic.utils.data import ElasticDistributedSampler
-
+from torch.nn.parallel import DistributedDataParallel
 from torch.utils.data import DataLoader
 from transformers import GenerationConfig
 
-from tokenized_cot_icl.core.args import Args, IGNORE_INDEX
-from tokenized_cot_icl.core.task_card import TASK_CARD
+from tokenized_cot_icl.core.args import IGNORE_INDEX, Args
 from tokenized_cot_icl.core.data import (
-    TokenizedDataset,
     EvalTokenizedDataset,
-)
-from tokenized_cot_icl.core.models import MODEL_REGISTRY
-from tokenized_cot_icl.core.utils import (
-    set_random_seed,
-    prepare_run_name,
+    TokenizedDataset,
 )
 from tokenized_cot_icl.core.metric_loggers import METRIC_LOGGER_REGISTRY, MetricLogger
+from tokenized_cot_icl.core.models import MODEL_REGISTRY
+from tokenized_cot_icl.core.task_card import TASK_CARD
+from tokenized_cot_icl.core.utils import (
+    prepare_run_name,
+    set_random_seed,
+)
 
 
 class Trainer:
@@ -170,9 +168,7 @@ class Trainer:
             labels = batch["labels"].cuda(self.device_id)
 
             # Forward pass
-            outputs = self.model(
-                input_ids, attention_mask=attention_mask, labels=labels
-            )
+            outputs = self.model(input_ids, attention_mask=attention_mask, labels=labels)
             total_loss += outputs.loss.item()
 
         avg_loss = total_loss / len(self.eval_loader)
@@ -192,9 +188,7 @@ class Trainer:
         for batch in self.eval_loader:
             input_ids = batch["cot_eval"]["input_ids"].cuda(self.device_id)
             attention_mask = batch["cot_eval"]["attention_mask"].cuda(self.device_id)
-            last_example_cot = batch["cot_eval"]["last_example_cot"].cuda(
-                self.device_id
-            )
+            last_example_cot = batch["cot_eval"]["last_example_cot"].cuda(self.device_id)
 
             # Generate the chain of tokens using model forward passes without teacher forcing
             # i.e we use the .generate() method.

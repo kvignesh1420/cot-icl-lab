@@ -1,8 +1,8 @@
 """A collection of metric logging classes"""
 
 import abc
-import os
 import logging
+import os
 
 logging.basicConfig(level=logging.INFO)
 
@@ -37,9 +37,7 @@ class StdOutMetricLogger(MetricLogger):
     def setup(self):
         self.logger = logging.getLogger(__name__)
         # set custom formatter with run_name
-        formatter = logging.Formatter(
-            f"{self.run_name} - {self.device_id} - %(message)s"
-        )
+        formatter = logging.Formatter(f"{self.run_name} - {self.device_id} - %(message)s")
         handler = logging.StreamHandler()
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)

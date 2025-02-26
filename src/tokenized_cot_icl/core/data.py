@@ -1,5 +1,7 @@
 """Token generator"""
 
+import logging
+from copy import deepcopy
 from functools import lru_cache
 
 import numpy as np
@@ -7,8 +9,6 @@ import torch
 import torch.nn as nn
 from torch.utils.data import Dataset
 from tqdm import tqdm
-import logging
-from copy import deepcopy
 
 from tokenized_cot_icl.core.args import Args
 from tokenized_cot_icl.core.dag import DAG_REGISTRY
