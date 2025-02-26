@@ -3,7 +3,6 @@
 from typing import List, Optional
 from dataclasses import dataclass, field
 
-MLFLOW_SERVICE_URL: str = ""
 IGNORE_INDEX = -100
 
 
@@ -98,3 +97,6 @@ class Args:
     temperature: float = 0.0
     eval_every_n_steps: int = 500  # Evaluate every n steps
     n_eval_tasks: int = 10000  # Number of tasks to evaluate on
+
+    # Metric logging
+    metric_logger: str = "stdout"

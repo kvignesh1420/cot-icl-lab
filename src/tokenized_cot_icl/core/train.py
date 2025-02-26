@@ -9,7 +9,6 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 
-
 import torch
 import torch.nn as nn
 from torch.nn.parallel import DistributedDataParallel
@@ -29,22 +28,31 @@ from tokenized_cot_icl.core.data import (
 from tokenized_cot_icl.core.models import MODEL_REGISTRY
 from tokenized_cot_icl.core.utils import (
     set_random_seed,
-    get_mlflow_client,
     prepare_run_name,
 )
+from tokenized_cot_icl.core.metric_loggers import METRIC_LOGGER_REGISTRY, MetricLogger
 
 
 class Trainer:
-    def __init__(self, args: Args, device_id: int, mlflow_run_id: str):
+    def __init__(self, args: Args, device_id: int):
         self.run_name = prepare_run_name(args=args)
         self.args = args
         self.device_id = device_id
-        self.mlflow_run_id = mlflow_run_id
         self.train_dataset_clz = TokenizedDataset
         self.eval_dataset_clz = EvalTokenizedDataset
         self.collate_fn = None
         self.create_model()
         self.create_dataloaders()
+        self.create_metric_logger()
+
+    def create_metric_logger(self):
+        assert args.metric_logger in METRIC_LOGGER_REGISTRY, (
+            f"Metric logger {args.metric_logger} not supported."
+        )
+        self.metric_logger: MetricLogger = METRIC_LOGGER_REGISTRY[args.metric_logger](
+            run_name=self.run_name, device_id=self.device_id
+        )
+        self.metric_logger.log_params(params=self.args.__dict__.items())
 
     def create_model(self):
         set_random_seed(self.args.seed)
@@ -55,13 +63,7 @@ class Trainer:
         self.model = DistributedDataParallel(self.model, device_ids=[self.device_id])
         # create optimizer
         self.optimizer = torch.optim.AdamW(self.model.parameters(), lr=self.args.lr)
-
         self.loss_fn = nn.CrossEntropyLoss(ignore_index=IGNORE_INDEX)
-        if self.device_id == 0:
-            self.mlflow_client = get_mlflow_client()
-            logging.info(f"Rank: {self.device_id}. MLFlow run_id: {self.mlflow_run_id}")
-            for k, v in self.args.__dict__.items():
-                self.mlflow_client.log_param(run_id=self.mlflow_run_id, key=k, value=v)
 
     def create_dataloaders(self):
         # train
@@ -141,15 +143,9 @@ class Trainer:
                 self.optimizer.step()
 
                 # Log to MLFlow
-                if (
-                    self.device_id == 0
-                    and training_step % self.args.log_every_n_steps == 0
-                ):
-                    self.mlflow_client.log_metric(
-                        run_id=self.mlflow_run_id,
-                        key="train_loss",
-                        value=loss.item(),
-                        step=training_step,
+                if training_step % self.args.log_every_n_steps == 0:
+                    self.metric_logger.log_metrics(
+                        metrics={"train_loss": loss.item()}, step=training_step
                     )
 
                 # Evaluate
@@ -162,8 +158,7 @@ class Trainer:
                 if training_step % self.args.checkpoint_every_n_steps == 0:
                     self.save_checkpoint(step=training_step)
 
-        if self.device_id == 0:
-            self.mlflow_client.set_terminated(self.mlflow_run_id)
+        self.metric_logger.close()
 
     @torch.no_grad()
     def evaluate(self, step: int) -> None:
@@ -181,13 +176,8 @@ class Trainer:
             total_loss += outputs.loss.item()
 
         avg_loss = total_loss / len(self.eval_loader)
-        if self.device_id == 0:
-            self.mlflow_client.log_metric(
-                run_id=self.mlflow_run_id,
-                key="eval_loss",
-                value=avg_loss,
-                step=step,
-            )
+
+        self.metric_logger.log_metrics(metrics={"eval_loss": avg_loss}, step=step)
 
     @torch.no_grad()
     def cot_evaluate(self, step: int) -> None:
@@ -249,24 +239,19 @@ class Trainer:
                 chain_prediction_acc[chain_idx]["correct"] += correct
                 chain_prediction_acc[chain_idx]["total"] += labels.shape[0]
 
-        if self.device_id == 0:
-            for chain_idx, (loss, pred_info) in enumerate(
-                zip(chain_losses, chain_prediction_acc)
-            ):
-                avg_loss = loss / len(self.eval_loader)
-                self.mlflow_client.log_metric(
-                    run_id=self.mlflow_run_id,
-                    key=f"cot_eval_loss_chain_idx_{chain_idx}",
-                    value=avg_loss,
-                    step=step,
-                )
-                accuracy = pred_info["correct"] / pred_info["total"]
-                self.mlflow_client.log_metric(
-                    run_id=self.mlflow_run_id,
-                    key=f"cot_eval_accuracy_chain_idx_{chain_idx}",
-                    value=accuracy,
-                    step=step,
-                )
+        for chain_idx, (loss, pred_info) in enumerate(
+            zip(chain_losses, chain_prediction_acc)
+        ):
+            avg_loss = loss / len(self.eval_loader)
+            self.metric_logger.log_metrics(
+                metrics={f"cot_eval_loss_chain_idx_{chain_idx}": avg_loss},
+                step=step,
+            )
+            accuracy = pred_info["correct"] / pred_info["total"]
+            self.metric_logger.log_metrics(
+                metrics={f"cot_eval_accuracy_chain_idx_{chain_idx}": accuracy},
+                step=step,
+            )
 
     def save_model(self):
         if self.device_id == 0:
@@ -303,7 +288,6 @@ class Trainer:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--task_card_key", type=int, required=True)
-    parser.add_argument("--mlflow_run_id", type=str, required=True)
     parser_args = parser.parse_args()
 
     task_card_key = parser_args.task_card_key
@@ -319,9 +303,7 @@ if __name__ == "__main__":
         backend="nccl", init_method="env://", timeout=timedelta(seconds=300)
     )
 
-    trainer = Trainer(
-        args=args, device_id=device_id, mlflow_run_id=parser_args.mlflow_run_id
-    )
+    trainer = Trainer(args=args, device_id=device_id)
     trainer.train()
     trainer.save_model()
     trainer.save_eval_dataset()

@@ -4,11 +4,10 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 
-from datetime import datetime
 import random
 import numpy as np
 
-from tokenized_cot_icl.core.args import Args, MLFLOW_SERVICE_URL
+from tokenized_cot_icl.core.args import Args
 
 
 def set_random_seed(seed: int):
@@ -22,26 +21,6 @@ def set_random_seed(seed: int):
         torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
-
-
-def get_mlflow_client():
-    import mlflow
-
-    mlflow.set_tracking_uri(MLFLOW_SERVICE_URL)
-    return mlflow.client.MlflowClient()
-
-
-def get_mlflow_run(args: Args):
-    import mlflow
-
-    mlflow_client = get_mlflow_client()
-    experiment_name = f"cot-icl-lab-{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}"
-    experiment = mlflow.set_experiment(experiment_name)
-    run_name = prepare_run_name(args)
-    run = mlflow_client.create_run(
-        experiment_id=experiment.experiment_id, run_name=run_name
-    )
-    return run
 
 
 def prepare_run_name(args: Args) -> str:
