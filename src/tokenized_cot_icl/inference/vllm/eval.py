@@ -22,7 +22,10 @@ class VLLMEvaluator:
         self.args = Args(**args_dict)
 
     def _setup_model(self):
-        model_path = os.path.join(self.output_dir, "checkpoints", str(self.checkpoint))
+        if self.checkpoint == "final":
+            model_path = os.path.join(self.output_dir, "final_model")
+        else:
+            model_path = os.path.join(self.output_dir, "checkpoints", self.checkpoint)
         self.model = LLM(
             model_path,
             dtype=torch.float32,
@@ -69,7 +72,7 @@ class VLLMEvaluator:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--output_dir", type=str, required=True)
-    parser.add_argument("--checkpoint", type=int, required=True)
+    parser.add_argument("--checkpoint", type=str, required=True)
     parser_args = parser.parse_args()
 
     evaluator = VLLMEvaluator(output_dir=parser_args.output_dir, checkpoint=parser_args.checkpoint)

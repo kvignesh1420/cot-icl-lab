@@ -117,6 +117,22 @@ The `TASK_CARD` allows us to index into the experimental config of our choice an
 - By default, we use `metric_logger: str = "stdout"` in the `Args` dataclass and log the metrics/params to `STDOUT`. 
 - We also support logging to an [MLFlow](https://mlflow.org/docs/latest/tracking.html) tracking server by setting the `MLFLOW_SERVICE_URL` environment variable and using `Args(metric_logger="mlflow")`.
 
+
+## Inference
+
+### vLLM
+
+In addition to using the `transformers.GenerationConfig` for small scale inference during the training runs, we also support [vLLM](https://github.com/vllm-project/vllm) based evaluation of the trained model (or model checkpoints) to analyze the predictions.
+
+We provide an easy to extend example for calculating the answer token prediction accuracy as follows:
+
+```bash
+(.venv) $ cd src &&  python tokenized_cot_icl/inference/vllm/eval.py \
+                        --output_dir /opt/cot-icl-lab/... \ # set the path
+                        --checkpoint final  # either final or 1000, 2000 etc.
+```
+
+
 ## License
 
 [MIT License](LICENSE)
