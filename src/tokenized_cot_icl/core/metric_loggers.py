@@ -86,7 +86,7 @@ class MLFlowMetricLogger(MetricLogger):
         if self.device_id == 0:
             for key, value in params.items():
                 self.mlflow_client.log_param(
-                    run_id=self.run.run_id, key=key, value=value
+                    run_id=self.run.info.run_id, key=key, value=value
                 )
 
     def log_metrics(self, metrics: dict, step: int):
@@ -94,7 +94,7 @@ class MLFlowMetricLogger(MetricLogger):
         if self.device_id == 0:
             for key, value in metrics.items():
                 self.mlflow_client.log_metric(
-                    run_id=self.run.run_id,
+                    run_id=self.run.info.run_id,
                     key=key,
                     value=value,
                     step=step,
@@ -103,7 +103,7 @@ class MLFlowMetricLogger(MetricLogger):
     def close(self):
         """Logs the termination message to MLFlow"""
         if self.device_id == 0:
-            self.mlflow_client.set_terminated(self.run.run_id)
+            self.mlflow_client.set_terminated(self.run.info.run_id)
 
 
 METRIC_LOGGER_REGISTRY = {
