@@ -25,6 +25,12 @@ $ source .venv/bin/activate
 (.venv) $ pytest
 ```
 
+- (Development) Run ruff + isort fixes to sanitize the code changes.
+
+```bash
+(.venv) $ ./beautify.sh
+```
+
 ## License
 
 [MIT License](LICENSE)
