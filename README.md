@@ -145,12 +145,19 @@ The `TASK_CARD` allows us to index into the experimental config of our choice an
 
 Users can also apply the [Liger-Kernel](https://github.com/linkedin/Liger-Kernel) optimizations to patch the llama models by setting `Args(use_liger_kernels=True)` and speed up the training runs.
 
+```bash
+(.venv) $ pip install liger-kernel # install suitable version
+```
 
 ## Inference
 
 ### vLLM
 
 In addition to using the `transformers.GenerationConfig` for small scale inference during the training runs, we also support [vLLM](https://github.com/vllm-project/vllm) based evaluation of the trained model (or model checkpoints) to analyze the predictions.
+
+```bash
+(.venv) $ pip install vllm # install suitable version
+```
 
 We provide an easy to extend example for calculating the answer token prediction accuracy as follows:
 
