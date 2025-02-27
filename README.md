@@ -86,6 +86,20 @@ The `'adj_list': tensor([[0, 2], [4, 3], [5, 3]])` (based on zero-indexing) indi
 >[!NOTE]
 > The TokenCoverage metric introduced in the paper relies on the uniqueness of chain tokens in the entire dataset and depends heavily on the "vocab_size" and "activation". Thus controlling the difficulty of the tasks.
 
+## Models
+
+We leverage the HuggingFace [transformers](https://github.com/huggingface/transformers) library to create custom Llama models and expose a `MODEL_REGISTRY` to register new model families.
+
+```py
+# src/tokenized_cot_icl/core/models.py
+
+MODEL_REGISTRY = {"llama": create_llama_model}
+```
+
+>[!TIP]
+> Users can register the creation function for models of their choice from the `transformers` library to explore new architectures and validate ideas.
+
+
 ## Training
 
 ### Setting the `TASK_CARD`
@@ -93,7 +107,7 @@ The `'adj_list': tensor([[0, 2], [4, 3], [5, 3]])` (based on zero-indexing) indi
 To make it suitable for bulk launching the experiments, we rely on a `TASK_CARD` to collate all the args. For instance, to train a model with the args as per the above example, we do:
 
 ```py
-# tokenized_cot_icl/core/task_card.py
+# src/tokenized_cot_icl/core/task_card.py
 
 def custom_task_card() -> Dict[int, Args]:
     """A custom task card."""    
