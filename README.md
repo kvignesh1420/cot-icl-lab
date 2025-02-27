@@ -150,7 +150,7 @@ Users can also apply the [Liger-Kernel](https://github.com/linkedin/Liger-Kernel
 
 ### vLLM
 
-In addition to using the `transformers.GenerationConfig` for small scale inference during the training runs, we also support [vLLM](https://github.com/vllm-project/vllm) and [SGlang](https://github.com/sgl-project/sglang) based evaluation of the trained model (or model checkpoints) to analyze the predictions.
+In addition to using the `transformers.GenerationConfig` for small scale inference during the training runs, we also support [vLLM](https://github.com/vllm-project/vllm) and [SGLang](https://github.com/sgl-project/sglang) based evaluation of the trained model (or model checkpoints) to analyze the predictions.
 
 We provide an easy to extend example for calculating the answer token prediction accuracy as follows:
 
