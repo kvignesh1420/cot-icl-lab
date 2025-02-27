@@ -75,24 +75,44 @@ class InferenceEvaluator:
 
     def evaluate(self):
         answer_pred_info = {"correct": 0.0, "total": len(self.eval_dataset)}
+        if self.inference_engine == "vllm":
+            eval_func = self._evaluate_vllm_one_step
+        elif self.inference_engine == "sglang":
+            eval_func = self._evaluate_sglang_one_step
+        else:
+            raise ValueError("Invalid inference engine.")
 
         for item in tqdm(self.eval_dataset):
             prompt = item["cot_eval"]["input_ids"].tolist()
 
-            o = self.model.generate(
-                TokensPrompt({"prompt_token_ids": prompt}),
-                sampling_params=self.sampling_params,
-                use_tqdm=False,
-            )
-
-            pred_ids = o[0].outputs[0].token_ids
-            pred_answer = pred_ids[-1]
+            pred_answer = eval_func(prompt)
             gt_answer = item["cot_eval"]["last_example_cot"].tolist()[-1]
             if pred_answer == gt_answer:
                 answer_pred_info["correct"] += 1
 
         accuracy = answer_pred_info["correct"] / answer_pred_info["total"]
         return accuracy
+
+    def _evaluate_vllm_one_step(self, prompt: list[int]):
+        o = self.model.generate(
+                TokensPrompt({"prompt_token_ids": prompt}),
+                sampling_params=self.sampling_params,
+                use_tqdm=False,
+            )
+
+        pred_ids = o[0].outputs[0].token_ids
+        pred_answer = pred_ids[-1]
+        return pred_answer
+
+    def _evaluate_sglang_one_step(self, prompt: list[int]):
+        o = self.model.generate(
+                input_ids=prompt,
+                sampling_params=self.sampling_params
+            )
+
+        pred_ids = o['token_ids']
+        pred_answer = pred_ids[-1]
+        return pred_answer
 
 
 if __name__ == "__main__":
