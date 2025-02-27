@@ -133,10 +133,7 @@ The `TASK_CARD` allows us to index into the experimental config of our choice an
 
 ### Liger-Kernels
 
-Since we employ the model code from the `transformers` library, users can also apply the [Liger-Kernel](https://github.com/linkedin/Liger-Kernel) optimizations to speed up their training.
-
-
-After installing the [Liger-Kernel](https://github.com/linkedin/Liger-Kernel) library, one can simply patch the llama models by setting `Args(use_liger_kernels=True)` for the training runs.
+Users can also apply the [Liger-Kernel](https://github.com/linkedin/Liger-Kernel) optimizations to patch the llama models by setting `Args(use_liger_kernels=True)` and speed up the training runs.
 
 
 ## Inference
