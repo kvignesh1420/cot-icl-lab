@@ -1,25 +1,15 @@
 import argparse
-import json
-import os
-
 import torch
 from tqdm import tqdm
 from vllm import LLM, SamplingParams, TokensPrompt
+import os
 
-from tokenized_cot_icl.core.args import Args
+from tokenized_cot_icl.inference.base_evaluator import InferenceEvaluator
 
 
-class VLLMEvaluator:
+class VLLMEvaluator(InferenceEvaluator):
     def __init__(self, output_dir: str, checkpoint: int):
-        self.output_dir = output_dir
-        self.checkpoint = checkpoint
-        self.setup()
-
-    def _load_args(self):
-        args_path = os.path.join(self.output_dir, "args.json")
-        with open(args_path, "r") as f:
-            args_dict = json.load(f)
-        self.args = Args(**args_dict)
+        super().__init__(output_dir, checkpoint)
 
     def _setup_model(self):
         if self.checkpoint == "final":
@@ -39,17 +29,8 @@ class VLLMEvaluator:
             temperature=0.0,
         )
 
-    def _load_eval_dataset(self):
-        self.eval_dataset = torch.load(os.path.join(self.output_dir, "eval_dataset", "eval_data.pt"))
-
-    def setup(self):
-        self._load_args()
-        self._setup_model()
-        self._load_eval_dataset()
-
     def evaluate(self):
         answer_pred_info = {"correct": 0.0, "total": len(self.eval_dataset)}
-
         for item in tqdm(self.eval_dataset):
             prompt = item["cot_eval"]["input_ids"].tolist()
 
