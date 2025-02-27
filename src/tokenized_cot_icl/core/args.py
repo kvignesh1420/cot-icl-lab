@@ -81,7 +81,7 @@ class Args:
     # training configs
     lr: float = 5e-5
     num_epochs: int = 1
-    output_dir: str = "/opt/cot-icl-lab"
+    output_base_dir: str = "/opt/cot-icl-lab"
     log_every_n_steps: int = 100
     checkpoint_every_n_steps: int = 500
     use_liger_kernels: bool = False  # install liger-kernels to enable this

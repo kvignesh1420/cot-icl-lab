@@ -153,7 +153,7 @@ We provide an easy to extend example for calculating the answer token prediction
 
 ```bash
 (.venv) $ cd src && python tokenized_cot_icl/inference/vllm/eval.py \
-                        --output_dir /opt/cot-icl-lab/... \ # set the path
+                        --output_dir /opt/cot-icl-lab/run_name \ # set the path
                         --checkpoint final  # either final or 1000, 2000 etc.
 ```
 

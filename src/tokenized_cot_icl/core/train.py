@@ -42,9 +42,9 @@ class Trainer:
 
     def create_output_dir(self):
         if self.device_id == 0:
-            os.makedirs(os.path.join(self.args.output_dir, self.run_name), exist_ok=True)
+            os.makedirs(os.path.join(self.args.output_base_dir, self.run_name), exist_ok=True)
             # save the args to the output directory
-            args_file = os.path.join(self.args.output_dir, self.run_name, "args.json")
+            args_file = os.path.join(self.args.output_base_dir, self.run_name, "args.json")
             with open(args_file, "w") as f:
                 json.dump(asdict(self.args), f, indent=4)
             logging.info(f"Saved args to {args_file}")
@@ -243,7 +243,7 @@ class Trainer:
 
     def save_model(self):
         if self.device_id == 0:
-            model_dir = os.path.join(self.args.output_dir, self.run_name, "final_model")
+            model_dir = os.path.join(self.args.output_base_dir, self.run_name, "final_model")
             if not os.path.exists(model_dir):
                 os.makedirs(model_dir)
             logging.info(f"Saving model to {model_dir}")
@@ -251,7 +251,7 @@ class Trainer:
 
     def save_checkpoint(self, step: int):
         if self.device_id == 0:
-            checkpoint_dir = os.path.join(self.args.output_dir, self.run_name, "checkpoints", str(step))
+            checkpoint_dir = os.path.join(self.args.output_base_dir, self.run_name, "checkpoints", str(step))
             if not os.path.exists(checkpoint_dir):
                 os.makedirs(checkpoint_dir)
             logging.info(f"Saving checkpoint to {checkpoint_dir}")
@@ -259,7 +259,7 @@ class Trainer:
 
     def save_eval_dataset(self):
         if self.device_id == 0:
-            eval_dataset_dir = os.path.join(self.args.output_dir, self.run_name, "eval_dataset")
+            eval_dataset_dir = os.path.join(self.args.output_base_dir, self.run_name, "eval_dataset")
             if not os.path.exists(eval_dataset_dir):
                 os.makedirs(eval_dataset_dir)
             logging.info(f"Saving eval dataset to {eval_dataset_dir}")
