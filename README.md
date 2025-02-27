@@ -155,10 +155,15 @@ In addition to using the `transformers.GenerationConfig` for small scale inferen
 We provide an easy to extend example for calculating the answer token prediction accuracy as follows:
 
 ```bash
-(.venv) $ cd src && python tokenized_cot_icl/inference/eval.py \
+# for vllm
+(.venv) $ cd src && python tokenized_cot_icl/inference/vllm/eval.py \
                         --output_dir /opt/cot-icl-lab/run_name \ # set the path
                         --checkpoint final  # either final or 1000, 2000 etc.
-                        --inference-engine vllm # or sglang
+
+# for sglang
+(.venv) $ cd src && python tokenized_cot_icl/inference/sglang/eval.py \
+                        --output_dir /opt/cot-icl-lab/run_name \ # set the path
+                        --checkpoint final  # either final or 1000, 2000 etc.
 ```
 
 
