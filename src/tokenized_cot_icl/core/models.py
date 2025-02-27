@@ -7,7 +7,15 @@ from transformers.models.llama.modeling_llama import LlamaForCausalLM
 from tokenized_cot_icl.core.args import Args
 
 
+def patch_with_liger_kernels():
+    from liger_kernel.transformers import apply_liger_kernel_to_llama
+
+    apply_liger_kernel_to_llama()
+
+
 def create_llama_model(args: Args):
+    if args.use_liger_kernels:
+        patch_with_liger_kernels()
     config = LlamaConfig(
         vocab_size=args.vocab_size,
         hidden_size=args.hidden_size,

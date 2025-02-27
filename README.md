@@ -131,6 +131,13 @@ The `TASK_CARD` allows us to index into the experimental config of our choice an
 - By default, we use `metric_logger: str = "stdout"` in the `Args` dataclass and log the metrics/params to `STDOUT`. 
 - We also support logging to an [MLFlow](https://mlflow.org/docs/latest/tracking.html) tracking server by setting the `MLFLOW_SERVICE_URL` environment variable and using `Args(metric_logger="mlflow")`.
 
+### Liger-Kernels
+
+Since we employ the model code from the `transformers` library, users can also apply the [Liger-Kernel](https://github.com/linkedin/Liger-Kernel) optimizations to speed up their training.
+
+
+After installing the [Liger-Kernel](https://github.com/linkedin/Liger-Kernel) library, one can simply patch the llama models by setting `Args(use_liger_kernels=True)` for the training runs.
+
 
 ## Inference
 
