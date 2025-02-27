@@ -54,7 +54,7 @@ class Trainer:
         self.metric_logger: MetricLogger = METRIC_LOGGER_REGISTRY[args.metric_logger](
             run_name=self.run_name, device_id=self.device_id
         )
-        self.metric_logger.log_params(params=self.args.__dict__.items())
+        self.metric_logger.log_params(params=self.args.__dict__)
 
     def create_model(self):
         set_random_seed(self.args.seed)
