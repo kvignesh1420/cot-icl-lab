@@ -64,7 +64,7 @@ The above item in the dataset is as follows:
     'attention_mask': tensor([1, 1, 1, 1, 1, 1, 1]),
     'input_ids': tensor([ 556,  197, 1002,  867,  240,  466,  217]),
     'labels': tensor([-100, -100, -100, -100,  240,  466,  217]),
-    'cot_eval': 
+    'cot_eval':
           {
                 'attention_mask': tensor([1, 1, 1, 1]),
                 'input_ids': tensor([ 556,  197, 1002,  867]),
@@ -117,7 +117,7 @@ To make it suitable for bulk launching the experiments, we rely on a `TASK_CARD`
 # src/tokenized_cot_icl/core/task_card.py
 
 def custom_task_card() -> Dict[int, Args]:
-    """A custom task card."""    
+    """A custom task card."""
       args = Args(...) # set as needed
     return {0: args}
 
@@ -138,7 +138,7 @@ The `TASK_CARD` allows us to index into the experimental config of our choice an
 
 ### Metric Logging
 
-- By default, we use `metric_logger: str = "stdout"` in the `Args` dataclass and log the metrics/params to `STDOUT`. 
+- By default, we use `metric_logger="stdout"` in `Args` and log the metrics/params to `STDOUT`.
 - We also support logging to an [MLFlow](https://mlflow.org/docs/latest/tracking.html) tracking server by setting the `MLFLOW_SERVICE_URL` environment variable and using `Args(metric_logger="mlflow")`.
 
 ### Liger-Kernels
@@ -169,12 +169,12 @@ We provide an easy to extend example for calculating the answer token prediction
 
 ```bibtex
 @misc{kothapalli2025coticllabpetridish,
-      title={CoT-ICL Lab: A Petri Dish for Studying Chain-of-Thought Learning from In-Context Demonstrations}, 
+      title={CoT-ICL Lab: A Petri Dish for Studying Chain-of-Thought Learning from In-Context Demonstrations},
       author={Vignesh Kothapalli and Hamed Firooz and Maziar Sanjabi},
       year={2025},
       eprint={2502.15132},
       archivePrefix={arXiv},
       primaryClass={cs.CL},
-      url={https://arxiv.org/abs/2502.15132}, 
+      url={https://arxiv.org/abs/2502.15132},
 }
 ```
