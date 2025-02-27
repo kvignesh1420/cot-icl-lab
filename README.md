@@ -130,7 +130,10 @@ TASK_CARD = custom_task_card()
 The `TASK_CARD` allows us to index into the experimental config of our choice and launch the torch distributed data parallel (DDP) training runs. For example:
 
 ```bash
-(.venv) $ cd src && python tokenized_cot_icl/core/train.py --task_card_key 0
+(.venv) $ cd src
+(.venv) $ export NUM_NODES=1 # change as needed
+(.venv) $ export LOCAL_WORLD_SIZE=4 # change as needed
+(.venv) $ torchrun --nnodes=$NUM_NODES --nproc-per-node=$LOCAL_WORLD_SIZE -m tokenized_cot_icl.core.train --task_card_key 0
 ```
 
 ### Metric Logging
