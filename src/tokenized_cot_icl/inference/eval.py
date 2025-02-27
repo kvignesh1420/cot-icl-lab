@@ -5,14 +5,16 @@ import os
 import torch
 from tqdm import tqdm
 from vllm import LLM, SamplingParams, TokensPrompt
+from sglang import Engine
 
 from tokenized_cot_icl.core.args import Args
 
 
-class VLLMEvaluator:
-    def __init__(self, output_dir: str, checkpoint: int):
+class InferenceEvaluator:
+    def __init__(self, output_dir: str, checkpoint: int, inference_engine: str):
         self.output_dir = output_dir
         self.checkpoint = checkpoint
+        self.inference_engine = inference_engine
         self.setup()
 
     def _load_args(self):
@@ -26,6 +28,14 @@ class VLLMEvaluator:
             model_path = os.path.join(self.output_dir, "final_model")
         else:
             model_path = os.path.join(self.output_dir, "checkpoints", self.checkpoint)
+        if self.inference_engine == "vllm":
+            self.__setup_vllm_model(model_path)
+        elif self.inference_engine == "sglang":
+            self.__setup_sglang_model(model_path)
+        else:
+            raise ValueError("Invalid inference engine.")
+
+    def __setup_vllm_model(self, model_path):
         self.model = LLM(
             model_path,
             dtype=torch.float32,
@@ -38,6 +48,22 @@ class VLLMEvaluator:
             skip_special_tokens=False,
             temperature=0.0,
         )
+
+    def __setup_sglang_model(self, model_path):
+        self.model = Engine(
+            model_path=model_path,
+            tokenizer_path=model_path,
+            attention_backend="torch_native",
+            sampling_backend="torch_native",
+            skip_tokenizer_init=True,
+            chunked_prefill_size=-1,
+        )
+        self.sampling_params = {
+            "max_new_tokens": self.args.chain_length,
+            "skip_special_tokens": False,
+            "temperature": 0.0,
+        }
+
 
     def _load_eval_dataset(self):
         self.eval_dataset = torch.load(os.path.join(self.output_dir, "eval_dataset", "eval_data.pt"))
@@ -73,8 +99,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--output_dir", type=str, required=True)
     parser.add_argument("--checkpoint", type=str, required=True)
+    parser.add_argument("--inference-engine", type=str, choices=["vllm", "sglang"], default="vllm")
     parser_args = parser.parse_args()
 
-    evaluator = VLLMEvaluator(output_dir=parser_args.output_dir, checkpoint=parser_args.checkpoint)
+    evaluator = InferenceEvaluator(output_dir=parser_args.output_dir, checkpoint=parser_args.checkpoint, inference_engine=parser_args.inference_engine)
     answer_accuracy = evaluator.evaluate()
     print(f"Answer token accuracy: {answer_accuracy}")
