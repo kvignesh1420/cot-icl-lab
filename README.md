@@ -79,9 +79,16 @@ Let's break down the result above to understand the DAG structure. Consider $4$ 
 
 The `'adj_list': tensor([[0, 2], [4, 3], [5, 3]])` (based on zero-indexing) indicates that the parent tokens for the chain tokens are as follows:
 
-- $y_1 \leftarrow \{x_1, x_3\}$
-- $y_2 \leftarrow \{y_1, x_4\}$
-- $y_3 \leftarrow \{y_2, x_4\}$
+<div align="center">
+
+| Chain Token | Parent Tokens    |
+|-------------|------------------|
+| $y_1$  | $\{x_1, x_3\}$ |
+| $y_2$ | $\{y_1, x_4\}$ |
+| $y_3$ | $\{y_2, x_4\}$ |
+
+</div>
+
 
 >[!NOTE]
 > The TokenCoverage metric introduced in the paper relies on the uniqueness of chain tokens in the entire dataset and depends heavily on the "vocab_size" and "activation". Thus controlling the difficulty of the tasks.
