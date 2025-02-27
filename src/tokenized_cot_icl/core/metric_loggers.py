@@ -46,10 +46,10 @@ class StdOutMetricLogger(MetricLogger):
         if self.device_id == 0:
             self.logger.info(params)
 
-    def log_metrics(self, metric: dict, step: int):
+    def log_metrics(self, metrics: dict, step: int):
         """Logs the metrics to stdout"""
         if self.device_id == 0:
-            self.logger.info(f"Step: {step}, Metric: {metric}")
+            self.logger.info(f"Step: {step}, Metrics: {metrics}")
 
     def close(self):
         """Logs the termination message to stdout"""
