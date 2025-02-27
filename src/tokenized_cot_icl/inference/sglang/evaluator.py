@@ -1,7 +1,8 @@
 import argparse
-from tqdm import tqdm
-from sglang import Engine
 import os
+
+from sglang import Engine
+from tqdm import tqdm
 
 from tokenized_cot_icl.inference.base_evaluator import InferenceEvaluator
 
@@ -33,12 +34,9 @@ class SGLangEvaluator(InferenceEvaluator):
         answer_pred_info = {"correct": 0.0, "total": len(self.eval_dataset)}
         for item in tqdm(self.eval_dataset):
             prompt = item["cot_eval"]["input_ids"].tolist()
-            o = self.model.generate(
-                input_ids=prompt,
-                sampling_params=self.sampling_params
-            )
+            o = self.model.generate(input_ids=prompt, sampling_params=self.sampling_params)
 
-            pred_ids = o['token_ids']
+            pred_ids = o["token_ids"]
             pred_answer = pred_ids[-1]
             gt_answer = item["cot_eval"]["last_example_cot"].tolist()[-1]
             if pred_answer == gt_answer:

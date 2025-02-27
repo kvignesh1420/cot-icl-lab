@@ -1,10 +1,11 @@
-
 import abc
-import os
 import json
+import os
+
 import torch
 
 from tokenized_cot_icl.core.args import Args
+
 
 class InferenceEvaluator(abc.ABC):
     def __init__(self, output_dir: str, checkpoint: int):
@@ -21,7 +22,6 @@ class InferenceEvaluator(abc.ABC):
     @abc.abstractmethod
     def _setup_model(self):
         pass
-
 
     def _load_eval_dataset(self):
         self.eval_dataset = torch.load(os.path.join(self.output_dir, "eval_dataset", "eval_data.pt"))

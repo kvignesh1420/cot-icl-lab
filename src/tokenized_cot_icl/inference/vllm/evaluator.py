@@ -1,8 +1,9 @@
 import argparse
+import os
+
 import torch
 from tqdm import tqdm
 from vllm import LLM, SamplingParams, TokensPrompt
-import os
 
 from tokenized_cot_icl.inference.base_evaluator import InferenceEvaluator
 
