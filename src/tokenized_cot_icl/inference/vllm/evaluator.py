@@ -9,14 +9,16 @@ from tokenized_cot_icl.inference.base_evaluator import InferenceEvaluator
 
 
 class VLLMEvaluator(InferenceEvaluator):
-    def __init__(self, output_dir: str, checkpoint: int):
-        super().__init__(output_dir, checkpoint)
+    def __init__(self, model_base_dir: str, checkpoint: int):
+        super().__init__(model_base_dir, checkpoint)
 
     def _setup_model(self):
         if self.checkpoint == "final":
-            model_path = os.path.join(self.output_dir, "final_model")
+            model_path = os.path.join(self.model_base_dir, "final_model")
         else:
-            model_path = os.path.join(self.output_dir, "checkpoints", self.checkpoint)
+            model_path = os.path.join(
+                self.model_base_dir, "checkpoints", self.checkpoint
+            )
         self.model = LLM(
             model_path,
             dtype=torch.float32,
@@ -53,10 +55,12 @@ class VLLMEvaluator(InferenceEvaluator):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--output_dir", type=str, required=True)
+    parser.add_argument("--model_base_dir", type=str, required=True)
     parser.add_argument("--checkpoint", type=str, required=True)
     parser_args = parser.parse_args()
 
-    evaluator = VLLMEvaluator(output_dir=parser_args.output_dir, checkpoint=parser_args.checkpoint)
+    evaluator = VLLMEvaluator(
+        model_base_dir=parser_args.model_base_dir, checkpoint=parser_args.checkpoint
+    )
     answer_accuracy = evaluator.evaluate()
     print(f"Answer token accuracy: {answer_accuracy}")

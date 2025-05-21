@@ -163,12 +163,12 @@ We provide an easy to extend example for calculating the answer token prediction
 ```bash
 # for vllm
 (.venv) $ cd src && python tokenized_cot_icl/inference/vllm/evaluator.py \
-                        --output_dir /opt/cot-icl-lab/run_name \ # set the path
+                        --model_base_dir /opt/cot-icl-lab/run_name \
                         --checkpoint final  # either final or 1000, 2000 etc.
 
 # for sglang
 (.venv) $ cd src && python tokenized_cot_icl/inference/sglang/evaluator.py \
-                        --output_dir /opt/cot-icl-lab/run_name \ # set the path
+                        --model_base_dir /opt/cot-icl-lab/run_name \
                         --checkpoint final  # either final or 1000, 2000 etc.
 ```
 
