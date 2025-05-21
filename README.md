@@ -1,6 +1,6 @@
 <div align="center">
   <h1>CoT-ICL Lab</h1>
-  <p> A Petri Dish for Studying Chain-of-Thought Learning from In-Context Demonstrations.
+  <p> A Synthetic Framework for Studying Chain-of-Thought Learning from In-Context Demonstrations
  </p>
 </div>
 <br>
