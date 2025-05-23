@@ -180,13 +180,13 @@ We provide an easy to extend example for calculating the answer token prediction
 ## Citation
 
 ```bibtex
-@misc{kothapalli2025coticllabpetridish,
-      title={CoT-ICL Lab: A Petri Dish for Studying Chain-of-Thought Learning from In-Context Demonstrations},
+@misc{kothapalli2025coticllabsyntheticframework,
+      title={CoT-ICL Lab: A Synthetic Framework for Studying Chain-of-Thought Learning from In-Context Demonstrations}, 
       author={Vignesh Kothapalli and Hamed Firooz and Maziar Sanjabi},
       year={2025},
       eprint={2502.15132},
       archivePrefix={arXiv},
       primaryClass={cs.CL},
-      url={https://arxiv.org/abs/2502.15132},
+      url={https://arxiv.org/abs/2502.15132}, 
 }
 ```
