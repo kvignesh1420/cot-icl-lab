@@ -3,7 +3,7 @@
 import numpy as np
 
 
-class DAG:
+class RandomDAG:
     """
     A Directed Acyclic Graph (DAG) to define the relationships between the tokens.
     Given `n_inputs`, `n_parents`, and a `chain_length` of tokens,
@@ -41,14 +41,14 @@ class DAG:
         adj_list = []
         available_indices = list(range(self.n_inputs))
         for chain_idx in range(self.chain_length):
-            parent_indices = np.random.choice(available_indices, self.n_parents, replace=False).tolist()
+            parent_indices = np.random.choice(
+                available_indices, self.n_parents, replace=False
+            ).tolist()
             adj_list.append(parent_indices)
             available_indices.append(self.n_inputs + chain_idx)
         return adj_list
 
 
-# Register the DAG class
-
 DAG_REGISTRY = {
-    "random": DAG,
+    "random": RandomDAG,
 }
