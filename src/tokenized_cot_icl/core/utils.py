@@ -3,10 +3,12 @@
 import logging
 import random
 from datetime import datetime
+from typing import Union
 
 import numpy as np
 
-from tokenized_cot_icl.core.args import Args
+from tokenized_cot_icl.core.args import Args, EvalArgs
+from tokenized_cot_icl.core.metric_loggers import METRIC_LOGGER_REGISTRY, MetricLogger
 
 logging.basicConfig(level=logging.INFO)
 
@@ -24,25 +26,14 @@ def set_random_seed(seed: int):
     torch.backends.cudnn.benchmark = False
 
 
-def prepare_run_name(args: Args) -> str:
-    """Prepare the run name for the experiment based on the arguments.
-    Example : llama_L_4_V_16384_H_8_M_4_N_4_C_2_n_ex_40_n_dims_10_hs_256_bs_128_act_leaky_relu_data_std_1_cot_false
-    """
-    substrings = [
-        args.model_type,
-        f"L_{args.num_hidden_layers}",
-        f"V_{args.vocab_size}",
-        f"H_{args.num_attention_heads}",
-        f"M_{args.n_parents}",
-        f"N_{args.n_inputs}",
-        f"C_{args.chain_length}",
-        f"n_ex_{args.n_examples}",
-        f"n_dims_{args.n_dims}",
-        f"hs_{args.hidden_size}",
-        f"bs_{args.batch_size}",
-        f"act_{args.activation}",
-        f"data_std_{args.data_initializer_range}",
-        f"cot_{args.enable_cot}",
-    ]
-    run_name = "_".join(substrings) + f"_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+def prepare_run_name(args: Union[Args, EvalArgs]) -> str:
+    run_name = f"{str(args)}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
     return run_name
+
+
+def create_metric_logger(args: Union[Args, EvalArgs], device_id=0):
+    assert args.metric_logger in METRIC_LOGGER_REGISTRY, f"Metric logger {args.metric_logger} not supported."
+    run_name = prepare_run_name(args)
+    metric_logger: MetricLogger = METRIC_LOGGER_REGISTRY[args.metric_logger](run_name=run_name, device_id=device_id)
+    metric_logger.log_params(params=args.__dict__)
+    return metric_logger

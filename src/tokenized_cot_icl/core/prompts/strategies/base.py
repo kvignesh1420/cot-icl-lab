@@ -1,13 +1,13 @@
-from typing import List, Dict
 import abc
 from copy import deepcopy
+from typing import Dict, List
 
 import torch
+
 from tokenized_cot_icl.core.args import IGNORE_INDEX
 
 
 class BasePrompt(abc.ABC):
-
     @abc.abstractmethod
     def _get_intermediate_and_answer_tokens(self, chain_tokens: List[int]) -> List[int]:
         """Get the intermediate and answer tokens given the chain tokens."""
@@ -31,18 +31,13 @@ class BasePrompt(abc.ABC):
         if not hasattr(self, "args") or self.args is None:
             return {}
 
-        if (
-            not hasattr(self.args, "enable_special_tokens")
-            or not self.args.enable_special_tokens
-        ):
+        if not hasattr(self.args, "enable_special_tokens") or not self.args.enable_special_tokens:
             return {}
 
         return self.args.reserved_token_ids
 
     @abc.abstractmethod
-    def get_example_info(
-        self, example: Dict[str, int], **kwargs
-    ) -> Dict[str, List[int]]:
+    def get_example_info(self, example: Dict[str, int], **kwargs) -> Dict[str, List[int]]:
         """Get the example information.
 
         The return dictionary should have the following keys:
@@ -55,9 +50,7 @@ class BasePrompt(abc.ABC):
         """
         ...
 
-    def _prepare_prompt_info(
-        self, examples: List[Dict[str, int]], **kwargs
-    ) -> List[int]:
+    def _prepare_prompt_info(self, examples: List[Dict[str, int]], **kwargs) -> List[int]:
         """Prepare the prompt using a list of examples.
 
         Each prompt will have the following format:
@@ -102,17 +95,11 @@ class BasePrompt(abc.ABC):
                     : example_info["cot_eval_input_mask_length"]
                 ]
                 cot_eval_example_attention_mask = [1] * len(cot_eval_example_input_ids)
-                last_example_cot = [
-                    label
-                    for label in example_info["example_labels"]
-                    if label != IGNORE_INDEX
-                ]
+                last_example_cot = [label for label in example_info["example_labels"] if label != IGNORE_INDEX]
             cot_eval_input_ids.extend(cot_eval_example_input_ids)
             cot_eval_attention_mask.extend(cot_eval_example_attention_mask)
 
-        assert len(input_ids) == len(
-            labels
-        ), f"len(input_ids): {len(input_ids)} != len(labels): {len(labels)}"
+        assert len(input_ids) == len(labels), f"len(input_ids): {len(input_ids)} != len(labels): {len(labels)}"
         assert len(input_ids) == len(attention_mask)
         assert len(cot_eval_input_ids) == len(cot_eval_attention_mask)
         assert num_examples == num_cot_examples + num_standard_examples, (

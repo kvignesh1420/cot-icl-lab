@@ -2,12 +2,12 @@ from copy import deepcopy
 from typing import Dict, List
 
 import numpy as np
-from transformers import AutoTokenizer
 from datasets import Dataset, load_from_disk
+from transformers import AutoTokenizer
 
 from tokenized_cot_icl.core.data.recipes import RECIPE_REGISTRY
+from tokenized_cot_icl.core.data.symbolic.common import ANSWER_PREFIX, SYSTEM_PROMPT, THINK_PREFIX
 from tokenized_cot_icl.core.utils import set_random_seed
-from tokenized_cot_icl.core.data.symbolic.common import SYSTEM_PROMPT, THINK_PREFIX, ANSWER_PREFIX
 
 
 class SymbolicDataModule:
@@ -65,7 +65,7 @@ class SymbolicDataModule:
     def prepare_cot_solution(self, intermediate_words: List[str], answer_word: str):
         reasoning = THINK_PREFIX
         for i in range(len(intermediate_words)):
-            reasoning += f"Step {i+1}: {intermediate_words[i]}\n"
+            reasoning += f"Step {i + 1}: {intermediate_words[i]}\n"
         reasoning += f"{ANSWER_PREFIX}\\boxed{{{answer_word}}}"
         return reasoning
 
@@ -73,9 +73,7 @@ class SymbolicDataModule:
         return f"{ANSWER_PREFIX}\\boxed{{{answer_word}}}"
 
     def prepare_prompt(self, row, prompt_index: int) -> Dict:
-        cot_example_prob = self.cot_example_prob_recipe.get_value(
-            prompt_index=prompt_index
-        )
+        cot_example_prob = self.cot_example_prob_recipe.get_value(prompt_index=prompt_index)
 
         conversation = [{"role": "system", "content": SYSTEM_PROMPT}]
         examples = row["examples"][: self.examples_per_prompt]
@@ -86,9 +84,7 @@ class SymbolicDataModule:
                 intermediate_words=examples[i]["intermediate_words"],
                 answer_word=examples[i]["answer_word"],
             )
-            answer_with_prefix = self.prepare_direct_solution(
-                answer_word=examples[i]["answer_word"]
-            )
+            answer_with_prefix = self.prepare_direct_solution(answer_word=examples[i]["answer_word"])
             conversation.extend(
                 [
                     {
@@ -98,9 +94,7 @@ class SymbolicDataModule:
                     {
                         "role": "assistant",
                         "content": (
-                            cot_solution_with_prefix
-                            if np.random.rand() < cot_example_prob
-                            else answer_with_prefix
+                            cot_solution_with_prefix if np.random.rand() < cot_example_prob else answer_with_prefix
                         ),
                     },
                 ]

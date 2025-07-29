@@ -26,7 +26,7 @@ class PowerLawRecipe(BaseRecipe):
     >>> y = c1 * math.pow(x, alpha) + c2
 
     Where:
-    >>> x = prompt_index/n_prompts
+    >>> x = prompt_index / n_prompts
 
     """
 
@@ -46,9 +46,7 @@ class PowerLawRecipe(BaseRecipe):
 
     def get_value(self, prompt_index: int) -> float:
         x = prompt_index / self.n_prompts
-        return min(
-            self.scale * math.pow(x, self.alpha) + self.initial_prob, self.final_prob
-        )
+        return min(self.scale * math.pow(x, self.alpha) + self.initial_prob, self.final_prob)
 
 
 RECIPE_REGISTRY = {

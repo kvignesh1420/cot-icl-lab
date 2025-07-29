@@ -1,11 +1,12 @@
 import argparse
-
-import datasets
-from typing import List, Dict
 import random
 import string
-from tqdm import tqdm
 from copy import deepcopy
+from typing import Dict, List
+
+import datasets
+from tqdm import tqdm
+
 from tokenized_cot_icl.core.data.dag import RandomDAG
 from tokenized_cot_icl.core.utils import set_random_seed
 
@@ -32,9 +33,7 @@ def offset_characters(word: str, offset: int) -> str:
     return "".join(CHARS[(CHARS.index(c) + offset) % len(CHARS)] for c in word)
 
 
-def create_icl_example(
-    word_length: int, num_words: int, adj_list: list, char_offset: int
-) -> Dict[str, str]:
+def create_icl_example(word_length: int, num_words: int, adj_list: list, char_offset: int) -> Dict[str, str]:
     """
     Create an ICL example by generating random words and concatenating their second halves.
     """
@@ -137,21 +136,11 @@ def prepare_dataset(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Prepare dataset for ICL examples.")
-    parser.add_argument(
-        "--num_examples", type=int, default=40, help="Number of examples per task."
-    )
-    parser.add_argument(
-        "--word_length", type=int, default=8, help="Length of the words."
-    )
-    parser.add_argument(
-        "--n_inputs", type=int, default=4, help="Number of input words."
-    )
-    parser.add_argument(
-        "--n_parents", type=int, default=2, help="Number of parents for each word."
-    )
-    parser.add_argument(
-        "--chain_length", type=int, default=3, help="Length of the chain."
-    )
+    parser.add_argument("--num_examples", type=int, default=40, help="Number of examples per task.")
+    parser.add_argument("--word_length", type=int, default=8, help="Length of the words.")
+    parser.add_argument("--n_inputs", type=int, default=4, help="Number of input words.")
+    parser.add_argument("--n_parents", type=int, default=2, help="Number of parents for each word.")
+    parser.add_argument("--chain_length", type=int, default=3, help="Length of the chain.")
     parser.add_argument(
         "--char_offset",
         type=int,
@@ -159,12 +148,8 @@ if __name__ == "__main__":
         help="Offset for the characters in the words.",
     )
     parser.add_argument("--n_tasks", type=int, default=1000, help="Number of tasks.")
-    parser.add_argument(
-        "--n_eval_tasks", type=int, default=10000, help="Number of evaluation tasks."
-    )
-    parser.add_argument(
-        "--seed", type=int, default=42, help="Random seed for reproducibility."
-    )
+    parser.add_argument("--n_eval_tasks", type=int, default=10000, help="Number of evaluation tasks.")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility.")
     args = parser.parse_args()
     print(f"prepare dataset with args: {args}")
 

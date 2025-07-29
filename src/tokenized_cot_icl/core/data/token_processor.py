@@ -1,4 +1,5 @@
 from typing import Optional
+
 import numpy as np
 import torch
 from torch import nn
@@ -27,12 +28,7 @@ class TokenProcessor(nn.Module):
         self.n_dims = n_dims
         self.num_layers = num_layers
         self.activation_fn = get_activation_fn(activation=activation)
-        self.layers = nn.ModuleList(
-            [
-                nn.Linear(self.n_dims, self.n_dims, bias=False)
-                for _ in range(self.num_layers)
-            ]
-        )
+        self.layers = nn.ModuleList([nn.Linear(self.n_dims, self.n_dims, bias=False) for _ in range(self.num_layers)])
         for layer in self.layers:
             torch.nn.init.normal_(layer.weight)
 
@@ -51,9 +47,7 @@ class TokenProcessorCache:
             Use `None` for an infinite stream.
     """
 
-    def __init__(
-        self, maxsize: Optional[int], n_dims: int, num_layers: int, activation: str
-    ):
+    def __init__(self, maxsize: Optional[int], n_dims: int, num_layers: int, activation: str):
         self.maxsize = maxsize if maxsize else np.inf
         self.n_dims = n_dims
         self.num_layers = num_layers
@@ -66,9 +60,9 @@ class TokenProcessorCache:
         self.storage.append(token_processor)
 
     def sample(self):
-        assert (
-            len(self.storage) <= self.maxsize
-        ), f"storage size: {len(self.storage)} has exceeded maxsize: {self.maxsize}."
+        assert len(self.storage) <= self.maxsize, (
+            f"storage size: {len(self.storage)} has exceeded maxsize: {self.maxsize}."
+        )
         if len(self.storage) < self.maxsize:
             token_processor = TokenProcessor(
                 n_dims=self.n_dims,

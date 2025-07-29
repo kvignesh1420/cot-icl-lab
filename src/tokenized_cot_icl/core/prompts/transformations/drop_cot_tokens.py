@@ -1,6 +1,9 @@
 import random
+
 import torch
+
 from tokenized_cot_icl.core.prompts.transformations.utils import get_cot_tokens
+
 
 def _drop_first_k_cot_tokens(tokens, start_token, end_token, k):
     tokens, cots = get_cot_tokens(tokens, start_token, end_token, k)
@@ -10,9 +13,10 @@ def _drop_first_k_cot_tokens(tokens, start_token, end_token, k):
     keep_mask = torch.ones_like(tokens, dtype=torch.bool)
 
     for start_pos, end_pos in cots:
-        keep_mask[start_pos: end_pos + 1] = False
+        keep_mask[start_pos : end_pos + 1] = False
 
     return tokens[keep_mask]
+
 
 def _drop_last_k_cot_tokens(tokens, start_token, end_token, k):
     tokens, cots = get_cot_tokens(tokens, start_token, end_token, k)
@@ -22,9 +26,10 @@ def _drop_last_k_cot_tokens(tokens, start_token, end_token, k):
     keep_mask = torch.ones_like(tokens, dtype=torch.bool)
 
     for start_pos, end_pos in cots:
-        keep_mask[start_pos: end_pos + 1] = False
+        keep_mask[start_pos : end_pos + 1] = False
 
     return tokens[keep_mask]
+
 
 def _drop_random_k_cot_tokens(tokens, start_token, end_token, k):
     tokens, cots = get_cot_tokens(tokens, start_token, end_token, k)
@@ -34,17 +39,19 @@ def _drop_random_k_cot_tokens(tokens, start_token, end_token, k):
     cots = random.sample(cots, k=k)
 
     for start_pos, end_pos in cots:
-        keep_mask[start_pos: end_pos + 1] = False
+        keep_mask[start_pos : end_pos + 1] = False
 
     return tokens[keep_mask]
+
 
 COT_DROPPING_FUNCTIONS = {
     "first_k": _drop_first_k_cot_tokens,
     "last_k": _drop_last_k_cot_tokens,
-    "random": _drop_random_k_cot_tokens
+    "random": _drop_random_k_cot_tokens,
 }
 
-def drop_k_cot_tokens_fn(batch, transformation: str,  k: int):
+
+def drop_k_cot_tokens_fn(batch, transformation: str, k: int):
     think_start_token_id = batch[0]["think_start_token_id"]
     think_end_token_id = batch[0]["think_end_token_id"]
 
@@ -57,4 +64,3 @@ def drop_k_cot_tokens_fn(batch, transformation: str,  k: int):
         item["cot_eval"]["attention_mask"] = torch.ones(len(token_ids))
 
     return batch
-
