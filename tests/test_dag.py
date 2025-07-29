@@ -1,6 +1,6 @@
 import pytest
 
-from tokenized_cot_icl.core.dag import DAG_REGISTRY
+from tokenized_cot_icl.core.data.dag import DAG_REGISTRY
 
 
 @pytest.mark.parametrize(
