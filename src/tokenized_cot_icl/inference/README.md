@@ -1,22 +1,12 @@
-## Inference with vLLM/SGLang
+## Inference
 
 In addition to using the `transformers.GenerationConfig` for small scale inference during the training runs, we also support [vLLM](https://github.com/vllm-project/vllm) and [SGLang](https://github.com/sgl-project/sglang) based evaluation of the trained model (or model checkpoints) to analyze the predictions.
 
-```bash
-(.venv) $ pip install vllm # install suitable version
-(.venv) $ pip install sglang # install suitable version
-```
+To evaluate the model in different scenarios (e.g. length generalization and different thinking strategies) we provide task cards in `task_card.py`. One can extend the existing task cards to add a new evaluation. The evaluation task cards are defined as a dictionary called `EVAL_TASK_CARD` where the keys are integer values representing a single setup.
 
-We provide an easy to extend example for calculating the answer token prediction accuracy as follows:
+To run the evaluations, modify `EVAL_TASK_CARD` in `task_card.py` to reflect the intended setup.  Then invoke the evaluate script with task card key. For example, the following runs the evaluate script for the first task card:
 
 ```bash
-# for vllm
-(.venv) $ cd src && python tokenized_cot_icl/inference/vllm/evaluator.py \
-                        --output_dir /opt/cot-icl-lab/run_name \ # set the path
-                        --checkpoint final  # either final or 1000, 2000 etc.
+(.venv) $ python -m tokenized_cot_icl.inference.evaluate --task_card_idx 0
 
-# for sglang
-(.venv) $ cd src && python tokenized_cot_icl/inference/sglang/evaluator.py \
-                        --output_dir /opt/cot-icl-lab/run_name \ # set the path
-                        --checkpoint final  # either final or 1000, 2000 etc.
 ```
