@@ -9,6 +9,13 @@
 
 ****************************************************************
 
+## Announcements
+
+- New version of the framework to be out soon!!
+- [2025.05] :tada: The ["CoT-ICL Lab"](https://aclanthology.org/2025.acl-long.712/) paper has been accepted to ACL Main 2025!
+
+****************************************************************
+
 ## Setup
 
 - Create a virtual environment and install the package.
@@ -180,13 +187,10 @@ We provide an easy to extend example for calculating the answer token prediction
 ## Citation
 
 ```bibtex
-@misc{kothapalli2025coticllabsyntheticframework,
-      title={CoT-ICL Lab: A Synthetic Framework for Studying Chain-of-Thought Learning from In-Context Demonstrations}, 
-      author={Vignesh Kothapalli and Hamed Firooz and Maziar Sanjabi},
-      year={2025},
-      eprint={2502.15132},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL},
-      url={https://arxiv.org/abs/2502.15132}, 
+@inproceedings{Kothapalli2025CoTICLLAB,
+  title={CoT-ICL Lab: A Synthetic Framework for Studying Chain-of-Thought Learning from In-Context Demonstrations},
+  author={Vignesh Kothapalli and Hamed Firooz and Maziar Sanjabi},
+  booktitle={Annual Meeting of the Association for Computational Linguistics},
+  year={2025},
 }
 ```
