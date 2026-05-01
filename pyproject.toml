@@ -1,3 +1,73 @@
+[project]
+name = "cot-icl-lab"
+version = "0.1.0"
+description = "A library to train and evaluate transformers for tokenized chain-of-thought in-context learning."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = { text = "MIT" }
+authors = [{ name = "Vignesh Kothapalli", email = "k.vignesh1420@gmail.com" }]
+dependencies = [
+    "tqdm==4.67.1",
+    "seaborn==0.13.2",
+    "mlflow==2.20.2",
+    "transformers==4.44.2",
+    "torch>=2.4",
+    "datasets>=3.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/kvignesh1420/cot-icl-lab"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+
+# ---------------------------------------------------------------------------
+# Pixi configuration
+# ---------------------------------------------------------------------------
+
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["osx-arm64", "linux-64"]
+
+[tool.pixi.dependencies]
+python = "3.12.*"
+
+[tool.pixi.pypi-dependencies]
+cot-icl-lab = { path = ".", editable = true }
+
+# Dev tooling
+[tool.pixi.feature.dev.pypi-dependencies]
+pytest = "==8.3.4"
+ruff = "==0.9.7"
+isort = "==6.0.1"
+
+# CUDA / Linux-only training stack
+[tool.pixi.feature.cuda]
+platforms = ["linux-64"]
+
+[tool.pixi.feature.cuda.pypi-dependencies]
+liger-kernel = "==0.4.2"
+triton = "==3.0.0"
+torch = { version = "==2.4.0+cu118", index = "https://download.pytorch.org/whl/cu118" }
+
+[tool.pixi.environments]
+default = { features = ["dev"], solve-group = "default" }
+cuda = { features = ["dev", "cuda"], solve-group = "cuda" }
+
+[tool.pixi.tasks]
+test = { cmd = "pytest tests/", description = "Run the test suite." }
+beautify = { cmd = "bash beautify.sh", description = "Run isort + ruff format + ruff check --fix." }
+
+
+# ---------------------------------------------------------------------------
+# Tooling
+# ---------------------------------------------------------------------------
+
 [tool.ruff]
 line-length = 120
 target-version = "py312"

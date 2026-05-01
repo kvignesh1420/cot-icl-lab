@@ -1,6 +1,6 @@
 import pytest
 
-from tokenized_cot_icl.core.args import Args
+from tokenized_cot_icl.core.args import Args, EvalArgs
 
 
 def test_args():
@@ -73,3 +73,30 @@ def test_special_token_args(vocab_size):
         vocab_size - 8,
         vocab_size - 9,
     ]
+
+
+def test_eval_args_defaults_and_str():
+    eval_args = EvalArgs()
+    assert eval_args.force_think_token is False
+    assert eval_args.force_answer_token is False
+    assert eval_args.num_output_seqs == 1
+    rendered = str(eval_args)
+    for token in [
+        "ft=False",
+        "fa=False",
+        "n_input=4",
+        "chain_len=4",
+        "n_parent=4",
+        "n_examples=40",
+    ]:
+        assert token in rendered
+
+
+def test_eval_args_force_flags_mutually_exclusive():
+    with pytest.raises(AssertionError):
+        EvalArgs(force_think_token=True, force_answer_token=True)
+
+
+def test_eval_args_force_one_at_a_time():
+    EvalArgs(force_think_token=True)
+    EvalArgs(force_answer_token=True)

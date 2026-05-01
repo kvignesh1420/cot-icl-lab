@@ -1,3 +1,5 @@
+import pytest
+
 from tokenized_cot_icl.core.args import IGNORE_INDEX, Args
 from tokenized_cot_icl.core.prompts.strategies.base import BasePrompt
 from tokenized_cot_icl.core.prompts.strategies.registry import PROMPT_STRATEGY_REGISTRY
@@ -269,3 +271,62 @@ def test_hybrid_special_token_prompt():
         "num_standard_examples",
     ]:
         assert key in prompt_info
+
+
+def test_hybrid_special_token_prompt_all_standard_when_prob_zero():
+    args = Args(
+        prompt_strategy="hybrid_special_token",
+        enable_special_tokens=True,
+        n_input_choices=DATA["n_input_choices"],
+        chain_length_choices=DATA["chain_length_choices"],
+        n_example_choices=(len(DATA["examples"]),),
+    )
+    prompt: BasePrompt = PROMPT_STRATEGY_REGISTRY[args.prompt_strategy](args=args)
+    prompt_info = prompt.prepare(examples=DATA["examples"], cot_example_prob=0.0)
+    assert prompt_info["num_cot_examples"] == 0
+    assert prompt_info["num_standard_examples"] == len(DATA["examples"])
+    # No think_start/think_end framing should appear at p=0
+    ids = prompt_info["input_ids"].tolist()
+    assert args.think_start_token_id not in ids
+    assert args.think_end_token_id not in ids
+
+
+def test_hybrid_special_token_prompt_all_cot_when_prob_one():
+    args = Args(
+        prompt_strategy="hybrid_special_token",
+        enable_special_tokens=True,
+        n_input_choices=DATA["n_input_choices"],
+        chain_length_choices=DATA["chain_length_choices"],
+        n_example_choices=(len(DATA["examples"]),),
+    )
+    prompt: BasePrompt = PROMPT_STRATEGY_REGISTRY[args.prompt_strategy](args=args)
+    prompt_info = prompt.prepare(examples=DATA["examples"], cot_example_prob=1.0)
+    assert prompt_info["num_cot_examples"] == len(DATA["examples"])
+    assert prompt_info["num_standard_examples"] == 0
+    ids = prompt_info["input_ids"].tolist()
+    # One think_start/think_end pair per example
+    assert ids.count(args.think_start_token_id) == len(DATA["examples"])
+    assert ids.count(args.think_end_token_id) == len(DATA["examples"])
+
+
+@pytest.mark.parametrize("strategy", ["standard", "cot"])
+def test_no_special_token_strategies_reject_special_tokens(strategy):
+    args = Args(
+        prompt_strategy=strategy,
+        enable_special_tokens=True,
+    )
+    with pytest.raises(AssertionError):
+        PROMPT_STRATEGY_REGISTRY[strategy](args=args)
+
+
+@pytest.mark.parametrize(
+    "strategy",
+    ["standard_special_token", "cot_special_token", "hybrid_special_token"],
+)
+def test_special_token_strategies_require_special_tokens(strategy):
+    args = Args(
+        prompt_strategy=strategy,
+        enable_special_tokens=False,
+    )
+    with pytest.raises(AssertionError):
+        PROMPT_STRATEGY_REGISTRY[strategy](args=args)

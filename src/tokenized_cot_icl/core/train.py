@@ -9,6 +9,7 @@ import os
 import tempfile
 from dataclasses import asdict
 from datetime import timedelta
+from functools import partial
 
 import numpy as np
 import torch
@@ -308,7 +309,7 @@ class SpecialTokenTrainer(Trainer):
         self.world_size = world_size
         self.train_dataset_clz = TokenizedDataset
         self.eval_dataset_clz = EvalTokenizedDataset
-        self.collate_fn = lambda batch: special_token_collate_fn(batch=batch, pad_token_id=args.pad_token_id)
+        self.collate_fn = partial(special_token_collate_fn, pad_token_id=args.pad_token_id)
         self.create_output_dir()
         self.create_model()
         self.create_dataloaders()

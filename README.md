@@ -18,24 +18,37 @@
 
 ## Setup
 
-- Create a virtual environment and install the package.
+We use [pixi](https://pixi.sh) to manage environments and dependencies. Install it once via `curl -fsSL https://pixi.sh/install.sh | bash` (or see the [pixi docs](https://pixi.sh/latest/#installation)).
+
+- Install the default environment (CPU-only; works on macOS arm64 and Linux):
 
 ```bash
-$ python3.12 -m venv .venv
-$ source .venv/bin/activate
-(.venv) $ pip install -e .
+$ pixi install
 ```
 
-- Run unit tests as a sanity check.
+- Install the CUDA training environment (Linux x86-64; pulls in `torch==2.4.0+cu118`, `triton`, and `liger-kernel`):
 
 ```bash
-(.venv) $ pytest
+$ pixi install -e cuda
 ```
 
-- (Development) Run ruff + isort fixes to sanitize the code changes.
+- Run the unit tests:
 
 ```bash
-(.venv) $ ./beautify.sh
+$ pixi run test
+```
+
+- Run ruff + isort fixes to sanitize the code changes:
+
+```bash
+$ pixi run beautify
+```
+
+- Drop into an interactive shell with the env activated:
+
+```bash
+$ pixi shell           # default env
+$ pixi shell -e cuda   # cuda env
 ```
 
 ## Getting Started
@@ -137,10 +150,10 @@ TASK_CARD = custom_task_card()
 The `TASK_CARD` allows us to index into the experimental config of our choice and launch the torch distributed data parallel (DDP) training runs. For example:
 
 ```bash
-(.venv) $ cd src
-(.venv) $ export NUM_NODES=1 # change as needed
-(.venv) $ export LOCAL_WORLD_SIZE=4 # change as needed
-(.venv) $ torchrun --nnodes=$NUM_NODES --nproc-per-node=$LOCAL_WORLD_SIZE -m tokenized_cot_icl.core.train --task_card_key 0
+$ cd src
+$ export NUM_NODES=1 # change as needed
+$ export LOCAL_WORLD_SIZE=4 # change as needed
+$ pixi run -e cuda torchrun --nnodes=$NUM_NODES --nproc-per-node=$LOCAL_WORLD_SIZE -m tokenized_cot_icl.core.train --task_card_key 0
 ```
 
 ### Metric Logging
@@ -150,31 +163,24 @@ The `TASK_CARD` allows us to index into the experimental config of our choice an
 
 ### Liger-Kernels
 
-Users can also apply the [Liger-Kernel](https://github.com/linkedin/Liger-Kernel) optimizations to patch the llama models by setting `Args(use_liger_kernels=True)` and speed up the training runs.
-
-```bash
-(.venv) $ pip install liger-kernel # install suitable version
-```
+The [Liger-Kernel](https://github.com/linkedin/Liger-Kernel) optimizations can patch the llama models for faster training runs. Liger is included in the `cuda` pixi environment, and is enabled by setting `Args(use_liger_kernels=True)`.
 
 ## Inference with vLLM/SGLang
 
 In addition to using the `transformers.GenerationConfig` for small scale inference during the training runs, we also support [vLLM](https://github.com/vllm-project/vllm) and [SGLang](https://github.com/sgl-project/sglang) based evaluation of the trained model (or model checkpoints) to analyze the predictions.
 
-```bash
-(.venv) $ pip install vllm # install suitable version
-(.venv) $ pip install sglang # install suitable version
-```
+These backends are not installed by the default pixi environments. Add the relevant package(s) to the appropriate `[tool.pixi.feature.*.pypi-dependencies]` section in `pyproject.toml` (typically `cuda`) and re-run `pixi install -e cuda`.
 
 We provide an easy to extend example for calculating the answer token prediction accuracy as follows:
 
 ```bash
 # for vllm
-(.venv) $ cd src && python tokenized_cot_icl/inference/vllm/evaluator.py \
+$ cd src && pixi run -e cuda python tokenized_cot_icl/inference/vllm/evaluator.py \
                         --model_base_dir /opt/cot-icl-lab/run_name \
                         --checkpoint final  # either final or 1000, 2000 etc.
 
 # for sglang
-(.venv) $ cd src && python tokenized_cot_icl/inference/sglang/evaluator.py \
+$ cd src && pixi run -e cuda python tokenized_cot_icl/inference/sglang/evaluator.py \
                         --model_base_dir /opt/cot-icl-lab/run_name \
                         --checkpoint final  # either final or 1000, 2000 etc.
 ```
