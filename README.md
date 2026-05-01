@@ -11,7 +11,7 @@
 
 ## Announcements
 
-- New version of the framework to be out soon!!
+- [2026.04] :tada: The ["To Think or Not to Think: The Hidden Cost of Meta-Training with Excessive CoT Examples"](https://arxiv.org/abs/2512.05318) paper has been accepted to ACL Main 2026! It is built on the v2 framework on the [`ata/v2`](https://github.com/kvignesh1420/cot-icl-lab/tree/ata/v2) branch.
 - [2025.05] :tada: The ["CoT-ICL Lab"](https://aclanthology.org/2025.acl-long.712/) paper has been accepted to ACL Main 2025!
 
 ****************************************************************
@@ -193,6 +193,13 @@ $ cd src && pixi run -e cuda python tokenized_cot_icl/inference/sglang/evaluator
 ## Citation
 
 ```bibtex
+@article{kothapalli2025think,
+  title={To Think or Not to Think: The Hidden Cost of Meta-Training with Excessive CoT Examples},
+  author={Kothapalli, Vignesh and Fatahibaarzi, Ata and Firooz, Hamed and Sanjabi, Maziar},
+  journal={arXiv preprint arXiv:2512.05318},
+  year={2025}
+}
+
 @inproceedings{Kothapalli2025CoTICLLAB,
   title={CoT-ICL Lab: A Synthetic Framework for Studying Chain-of-Thought Learning from In-Context Demonstrations},
   author={Vignesh Kothapalli and Hamed Firooz and Maziar Sanjabi},
