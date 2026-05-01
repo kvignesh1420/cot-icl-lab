@@ -11,7 +11,7 @@
 
 ## Announcements
 
-- [2026.04] :tada: The ["To Think or Not to Think: The Hidden Cost of Meta-Training with Excessive CoT Examples"](https://arxiv.org/abs/2512.05318) paper has been accepted to ACL Main 2026! It is built on the v2 framework on the [`ata/v2`](https://github.com/kvignesh1420/cot-icl-lab/tree/ata/v2) branch.
+- [2026.04] :tada: The ["To Think or Not to Think: The Hidden Cost of Meta-Training with Excessive CoT Examples"](https://arxiv.org/abs/2512.05318) paper has been accepted to ACL Main 2026!
 - [2025.05] :tada: The ["CoT-ICL Lab"](https://aclanthology.org/2025.acl-long.712/) paper has been accepted to ACL Main 2025!
 
 ****************************************************************
