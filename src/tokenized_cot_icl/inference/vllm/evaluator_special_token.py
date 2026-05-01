@@ -103,7 +103,7 @@ if __name__ == "__main__":
         "--num_output_seqs",
         type=int,
         default=1,
-        desc="Number of output sequences to generate. As of now, a value > 1 would result to majority voting.",
+        help="Number of output sequences to generate. As of now, a value > 1 would result to majority voting.",
     )
     parser.add_argument("--temperature", type=float, default=0.0)
     parser.add_argument(
