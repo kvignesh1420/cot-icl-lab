@@ -19,6 +19,10 @@ class MetricLogger(abc.ABC):
     def log_metrics(self, metrics: dict, step: int):
         """Logs the metrics"""
 
+    def log_artifact(self, local_path: str):
+        """Logs an artifact file"""
+        pass
+
     @abc.abstractmethod
     def close(self):
         """Closes the logger"""
@@ -92,6 +96,10 @@ class MLFlowMetricLogger(MetricLogger):
                     value=value,
                     step=step,
                 )
+
+    def log_artifact(self, local_path: str):
+        if self.device_id == 0:
+            self.mlflow_client.log_artifact(run_id=self.run.info.run_id, local_path=local_path)
 
     def close(self):
         """Terminates the mlflow run"""
