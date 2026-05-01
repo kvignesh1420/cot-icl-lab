@@ -1,4 +1,5 @@
 import argparse
+import os
 import random
 import string
 from copy import deepcopy
@@ -87,6 +88,7 @@ def prepare_dataset(
     char_offset: int,
     n_tasks: int,
     n_eval_tasks: int,
+    output_dir: str,
 ) -> List[Dict[str, str]]:
     """
     Prepare a dataset of ICL examples.
@@ -127,9 +129,11 @@ def prepare_dataset(
     dataset = datasets.DatasetDict({"train": train_ds, "test": test_ds})
     print(dataset)
 
-    dataset.save_to_disk(
-        f"/home/jobuser/cot_icl_lab_symbolic_N_{n_inputs}_M_{n_parents}_C_{chain_length}_K_{num_examples}_word_len_{word_length}_char_offset_{char_offset}_n_tasks_{n_tasks}_n_eval_tasks_{n_eval_tasks}"
+    save_path = os.path.join(
+        output_dir,
+        f"cot_icl_lab_symbolic_N_{n_inputs}_M_{n_parents}_C_{chain_length}_K_{num_examples}_word_len_{word_length}_char_offset_{char_offset}_n_tasks_{n_tasks}_n_eval_tasks_{n_eval_tasks}",
     )
+    dataset.save_to_disk(save_path)
 
     return dataset
 
@@ -150,6 +154,12 @@ if __name__ == "__main__":
     parser.add_argument("--n_tasks", type=int, default=1000, help="Number of tasks.")
     parser.add_argument("--n_eval_tasks", type=int, default=10000, help="Number of evaluation tasks.")
     parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility.")
+    parser.add_argument(
+        "--output_dir",
+        type=str,
+        required=True,
+        help="Directory in which to save the prepared dataset.",
+    )
     args = parser.parse_args()
     print(f"prepare dataset with args: {args}")
 
@@ -165,4 +175,5 @@ if __name__ == "__main__":
         char_offset=args.char_offset,
         n_tasks=args.n_tasks,
         n_eval_tasks=args.n_eval_tasks,
+        output_dir=args.output_dir,
     )

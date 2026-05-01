@@ -16,10 +16,8 @@ class SymbolicDataModule:
 
     ```py
     >>> dm = SymbolicDataModule(
-        dataset_path="/shared/public/data/vkothapa/cot_icl_lab_symbolic_N_4_M_2_C_4_K_40_word_len_8",
-        tokenizer=AutoTokenizer.from_pretrained(
-            "/shared/public/elr-models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775"
-        ),
+        dataset_path="/path/to/cot_icl_lab_symbolic_N_4_M_2_C_4_K_40_word_len_8",
+        tokenizer=AutoTokenizer.from_pretrained("Qwen/Qwen2.5-0.5B-Instruct"),
         examples_per_prompt=2,
         cot_example_prob_recipe_info={
             "type": "linear",

@@ -43,7 +43,6 @@ As a reference, This is the config.json of Llama-3.2-1B model
 from dataclasses import dataclass, field
 from typing import Dict, Optional
 
-MLFLOW_SERVICE_URL: str = "http://mlflow.grid1.ard.grid.linkedin.com:31812"
 IGNORE_INDEX = -100
 
 
