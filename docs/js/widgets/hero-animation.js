@@ -122,7 +122,7 @@ export function mountHeroAnimation(root) {
       defs.append("marker").attr("id", id).attr("viewBox", "0 0 10 10").attr("refX", refX).attr("refY", 5)
         .attr("markerUnits", "userSpaceOnUse").attr("markerWidth", w).attr("markerHeight", w).attr("orient", "auto")
         .append("path").attr("d", "M0,0 L10,5 L0,10 z").attr("fill", fill);
-    addArrowMarker("hero-arrow", 9, "#9db8e8", 8);
+    addArrowMarker("hero-arrow", 9, "#9aa0a6", 8); // flow arrows between stages (neutral gray)
     addArrowMarker("mini-arrow", 7, "#2563eb", 9); // recovered G edges (blue, directed)
     addArrowMarker("glyph-arrow", 5, "#2563eb", 9); // G-glyph edges in the generator panel
 
@@ -137,7 +137,7 @@ export function mountHeroAnimation(root) {
 
     // ---- stage 1: the generator, drawn as G (graph) · E (matrix) · H (MLP) ----
     const g1 = svg.append("g").attr("class", "stage1").attr("opacity", 0);
-    const pX = 12, pW = 126, pY = 108, pH = 168;
+    const pX = 12, pW = 126, pY = 108, pH = 176;
     g1.append("text").attr("class", "gen-sub").attr("x", pX + pW / 2).attr("y", pY - 6).attr("text-anchor", "middle").text("the generator");
     g1.append("rect").attr("class", "gen-panel").attr("x", pX).attr("y", pY).attr("width", pW).attr("height", pH).attr("rx", 9);
     const gcx = pX + 80, letX = pX + 22;
@@ -166,6 +166,7 @@ export function mountHeroAnimation(root) {
         glyG.append("circle").attr("class", `glyph-node ${cls}`).attr("cx", x).attr("cy", y).attr("r", gr);
       }
     }
+    glyG.append("text").attr("class", "glyph-desc").attr("x", gcx).attr("y", pY + 56).attr("text-anchor", "middle").text("causal structure");
 
     // E — the embedding matrix (amber grid, token x dims)
     const glyE = g1.append("g").attr("class", "gen-glyph glyph-E").attr("opacity", 0);
@@ -180,6 +181,7 @@ export function mountHeroAnimation(root) {
       glyE.append("rect").attr("class", "emat-frame").attr("x", ox - 1.5).attr("y", oy - 1.5)
         .attr("width", cols * (cw + gap) + 1).attr("height", rows * (cw + gap) + 1).attr("rx", 1.5);
     }
+    glyE.append("text").attr("class", "glyph-desc").attr("x", gcx).attr("y", pY + 113).attr("text-anchor", "middle").text("embedding matrix");
 
     // H — a small MLP (violet)
     const glyH = g1.append("g").attr("class", "gen-glyph glyph-H").attr("opacity", 0);
@@ -191,12 +193,13 @@ export function mountHeroAnimation(root) {
       for (let l = 0; l < cols.length - 1; l++) cols[l].forEach((a) => cols[l + 1].forEach((b) => glyH.append("path").attr("class", "mlp-edge").attr("d", `M${a[0]},${a[1]} L${b[0]},${b[1]}`)));
       cols.flat().forEach((p) => glyH.append("circle").attr("class", "mlp-node").attr("cx", p[0]).attr("cy", p[1]).attr("r", 2.6));
     }
+    glyH.append("text").attr("class", "glyph-desc").attr("x", gcx).attr("y", pY + 162).attr("text-anchor", "middle").text("token processor");
 
     // examples block geometry (shared chip size used by the held-out query too)
     const exX = 184, chip = 16, pitch = 18, exTop = 120, exPitch = 24;
     const exRight = exX + (L - 1) * pitch + chip;
     // arrow: generator -> the K example rows it produces (clear gaps on both ends)
-    g1.append("path").attr("class", "flow-arrow").attr("d", `M${pX + pW + 6},166 L${exX - 8},166`).attr("opacity", 0.9);
+    g1.append("path").attr("class", "flow-arrow").attr("d", `M${pX + pW + 6},164 L${exX - 8},164`).attr("opacity", 0.9);
 
     for (let k = 0; k < K; k++) {
       const row = g1.append("g").attr("class", `exrow exrow-${k}`).attr("opacity", 0).attr("transform", `translate(${exX}, ${exTop + k * exPitch})`);
@@ -216,18 +219,11 @@ export function mountHeroAnimation(root) {
     legItem(46, "ex-think", "reasoning");
     legItem(116, "ex-ans", "answer");
 
-    // ---- stage 2: transformer box + multi-head attention heatmap + mini-DAG ----
+    // ---- stage 2: transformer box + attention heatmap + mini-DAG ----
     const g2 = svg.append("g").attr("class", "stage2").attr("opacity", 0);
     g2.append("rect").attr("class", "tf-box").attr("x", 336).attr("y", 66).attr("width", 348).attr("height", 232).attr("rx", 10);
     g2.append("text").attr("class", "tf-label").attr("x", 510).attr("y", 90).attr("text-anchor", "middle").text("Transformer");
-    g2.append("text").attr("class", "tf-sub").attr("x", 510).attr("y", 104).attr("text-anchor", "middle").text("multi-head self-attention over the K-example prompt");
-
-    // ghost heads behind the main map (they converge / merge as it learns)
-    const ghosts = [];
-    for (let gi = 2; gi >= 1; gi--) {
-      ghosts[gi] = g2.append("g").attr("class", "ghost-head").attr("transform", `translate(${-7 * gi},${-7 * gi})`);
-      ghosts[gi].append("rect").attr("class", "attn-ghost").attr("x", ATTN_X).attr("y", ATTN_Y).attr("width", L * CELL).attr("height", L * CELL).attr("rx", 3);
-    }
+    g2.append("text").attr("class", "tf-sub").attr("x", 510).attr("y", 104).attr("text-anchor", "middle").text("self-attention over the K-example prompt");
 
     const gAttn = g2.append("g");
     cells = Array.from({ length: L }, () => []);
@@ -252,7 +248,7 @@ export function mountHeroAnimation(root) {
     // ---- stage 3: held-out query + decode (argmax over vocab) + prediction ----
     // chips here match the example-row chip size exactly, so the rows line up
     const g3 = svg.append("g").attr("class", "stage3").attr("opacity", 0);
-    const qx = 722, qy = 118, qp = pitch, qw = chip;
+    const qx = 722, qy = 156, qp = pitch, qw = chip;
     const qRight = qx + (L - 1) * qp + qw, qMid = (qx + qRight) / 2, qCy = qy + qw / 2;
     g3.append("text").attr("class", "gen-sub").attr("x", qMid).attr("y", qy - 9).attr("text-anchor", "middle").text("held-out query");
     for (let j = 0; j < L; j++) {
@@ -284,7 +280,7 @@ export function mountHeroAnimation(root) {
     g3.append("text").attr("class", "pred-ok").attr("data-el", "prednote").attr("x", qMid).attr("y", barY + barH + 16).attr("text-anchor", "middle").attr("opacity", 0).text("");
 
     const gPulse = svg.append("g");
-    return { s1, s2, s3, g1, g2, g3, gPulse, miniEdgeSel, ghosts, answerTok, ansCx, qy };
+    return { s1, s2, s3, g1, g2, g3, gPulse, miniEdgeSel, answerTok, ansCx, qy };
   }
 
   async function playOnce(myId) {
@@ -312,7 +308,7 @@ export function mountHeroAnimation(root) {
     for (let p = 0; p < 4; p++) { pulseAlong(314, 332, 164, parts.gPulse); await sleep(150); }
     if (myId !== runId) return;
 
-    // stage 2: attention learns the DAG (stepped; ghosts converge; edges reveal)
+    // stage 2: attention learns the DAG (stepped; edges reveal)
     const counterEl = svg.select('[data-el="counter"]');
     const captionEl = svg.select('[data-el="caption"]');
     const nEdges = parts.miniEdgeSel.size();
@@ -321,7 +317,6 @@ export function mountHeroAnimation(root) {
       if (myId !== runId) return;
       const t = st / STEPS;
       updateAttention(t);
-      for (let gi = 1; gi <= 2; gi++) { const off = -(2 + (1 - t) * 5) * gi; parts.ghosts[gi].attr("transform", `translate(${off},${off})`); }
       const reveal = Math.floor(t * nEdges);
       parts.miniEdgeSel.each(function (d, i) { d3.select(this).attr("opacity", i < reveal ? 0.9 : 0); });
       svg.select('[data-el="recarr"]').attr("opacity", t > 0.5 ? Math.min(1, (t - 0.5) * 3) : 0);
@@ -336,7 +331,7 @@ export function mountHeroAnimation(root) {
     parts.s3.transition().duration(350).attr("opacity", 1);
     parts.g3.transition().duration(350).attr("opacity", 1);
     svg.select('[data-el="arr3"]').transition().duration(300).attr("opacity", 1);
-    for (let p = 0; p < 3; p++) { pulseAlong(690, 713, 126, parts.gPulse); await sleep(150); }
+    for (let p = 0; p < 3; p++) { pulseAlong(690, 713, 164, parts.gPulse); await sleep(150); }
     await sleep(150);
     if (myId !== runId) return;
     // reveal the logits, then the argmax spike
