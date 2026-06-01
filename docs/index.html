@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CoT-ICL Lab: A Synthetic Framework for Chain-of-Thought In-Context Learning</title>
+  <meta name="description" content="An interactive explainer for CoT-ICL Lab: how synthetic DAGs and token processors generate chain-of-thought in-context examples, and the hidden cost of excessive CoT during meta-training (the CoT-Recipe)." />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="CoT-ICL Lab: an interactive explainer" />
+  <meta property="og:description" content="Manipulate the causal DAG, watch a chain-of-thought example get constructed two ways, and explore the CoT-Recipe curriculum." />
+  <meta property="og:image" content="assets/cot_icl_intro.png" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Libre+Franklin:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous" />
+
+  <!-- D3 (blocking so widget modules can read window.d3 immediately) -->
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+  <!-- KaTeX runtime + auto-render (deferred, run before the deferred module) -->
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+
+  <!-- Prism (Python syntax highlighting for §5) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="css/distill.css" />
+  <link rel="stylesheet" href="css/widgets.css" />
+
+  <!-- App -->
+  <script type="module" src="js/main.js"></script>
+</head>
+
+<body>
+<article class="d-article">
+
+  <!-- ================= TITLE ================= -->
+  <header class="d-title">
+    <h1>CoT-ICL Lab</h1>
+    <p class="subtitle">A synthetic framework for studying chain-of-thought learning from in-context demonstrations.</p>
+    <div class="byline">
+      <div>
+        <span class="label">Authors</span>
+        <span class="value">Vignesh Kothapalli · Ata Fatahibaarzi · Hamed Firooz · Maziar Sanjabi</span>
+      </div>
+      <div>
+        <span class="label">Published</span>
+        <span class="value">ACL 2025 (framework) · ACL 2026 (CoT-Recipe)</span>
+      </div>
+    </div>
+    <div class="link-row">
+      <a href="https://aclanthology.org/2025.acl-long.712/" target="_blank" rel="noopener">📄 CoT-ICL Lab (ACL 2025)</a>
+      <a href="https://arxiv.org/abs/2512.05318" target="_blank" rel="noopener">📄 To Think or Not to Think (ACL 2026)</a>
+      <a href="https://github.com/kvignesh1420/cot-icl-lab" target="_blank" rel="noopener">⌨ GitHub</a>
+    </div>
+  </header>
+
+  <figure class="hero full-width" style="max-width:1100px;margin-left:auto;margin-right:auto;padding:0 1.2rem">
+    <div id="w-hero"></div>
+    <figcaption><b>The CoT-ICL Lab pipeline.</b> $K$ in-context examples are sampled from the generator — the causal DAG $G$ (a graph), the embedding matrix $E$, and the token processor $H$ (a small MLP) — and fed to a transformer. Its attention map sharpens from diffuse to a structured pattern, <em>recovering the directed edges of $G$</em> (the same graph drawn in the generator): that is how the model learns the causal structure in context, before predicting the held-out answer. <em>Click the figure to regenerate.</em></figcaption>
+  </figure>
+
+  <!-- ================= INTRO ================= -->
+  <p class="lead">Chain-of-thought (CoT) prompting works, but it is hard to study <em>why</em> in the wild: real datasets tangle together reasoning structure, surface language, task difficulty, and pretraining priors. <strong>CoT-ICL Lab</strong> is a synthetic test bed that pulls those threads apart, so we can pose precise questions about how transformers learn to reason from in-context demonstrations, and run controlled experiments to answer them.</p>
+
+  <p>This page is an interactive tour of the framework behind two papers. The first<sup>1</sup> introduces the lab and asks: <em>can transformers learn chain-of-thought from in-context examples, and what governs it?</em> The second<sup>2</sup> uses the lab to surface a counterintuitive result: meta-training on <em>too many</em> CoT examples can quietly <em>hurt</em> downstream reasoning. It then proposes a fix, the <strong>CoT-Recipe</strong>.</p>
+
+  <aside>Kothapalli, Firooz, Sanjabi. <em>CoT-ICL Lab: A Synthetic Framework for Studying Chain-of-Thought Learning from In-Context Demonstrations.</em> ACL 2025 (Long Papers).</aside>
+  <aside>Kothapalli, Fatahibaarzi, Firooz, Sanjabi. <em>To Think or Not to Think: The Hidden Cost of Meta-Training with Excessive CoT Examples.</em> arXiv:2512.05318, ACL 2026.</aside>
+
+  <p>The core idea is a clean separation of concerns. Every in-context example is generated in two stages:</p>
+  <ul>
+    <li><strong>The causal structure, $G$.</strong> A random directed acyclic graph (DAG) decides, for each step of a reasoning chain, <em>which</em> earlier tokens it depends on.</li>
+    <li><strong>The token processor, $H$.</strong> A function decides <em>how</em> those parent tokens combine into the next token in the chain.</li>
+  </ul>
+
+  <p>Because $G$ and $H$ are independent knobs, the lab gives fine-grained control over the difficulty of in-context examples without changing the surface task. The model never sees $G$, $H$, or the embedding table behind the tokens; it must infer them from the demonstrations alone.</p>
+
+  <p>It helps to keep one concrete example in mind as we go, at two levels of abstraction. For training transformers from scratch, tokens are opaque integer ids and $H$ is a small random network over a fixed embedding matrix — a maximally controllable setup whose difficulty is set by the vocabulary size and activation. To check that the findings carry over to real models, the <em>same</em> DAG is re-rendered with made-up words and a human-readable string rule, so a pretrained LLM (Qwen2.5) can be asked to solve it. It is one and the same construction, shown two ways, and we build up both representations below.</p>
+
+  <!-- ================= SECTION 1: DAG ================= -->
+  <h2><span class="section-number">1</span>The causal structure</h2>
+  <p>Start with the skeleton. Given $N$ input tokens and a chain of length $C$, the DAG has $N + C$ nodes. The first $N$ are inputs $x_1,\dots,x_N$; the next $C$ are the chain ("thought") tokens $y_1,\dots,y_C$. Each chain token $y_i$ draws $M = n_{\text{parents}}$ <em>distinct</em> parents from everything generated so far (the inputs and all earlier chain tokens):</p>
+  <p>$$\text{pa}(y_i) \subseteq \{x_1,\dots,x_N,\; y_1,\dots,y_{i-1}\}, \qquad |\text{pa}(y_i)| = M.$$</p>
+  <p>Because parents always come from <em>earlier</em> nodes, dependencies point strictly left-to-right and the graph stays acyclic. Even a single random graph already produces thoughts that range from shallow (built from one or two inputs) to deep (integrating most of the graph through several hops). This causal structure is a faithful port of <code>RandomDAG.generate_adj_list</code>; rather than show it in isolation, we let you reshape it directly in the next figure, which realizes the DAG with embeddings and a token processor and exposes sliders for $N$, $M$, and $C$.</p>
+
+  <aside>The number of parents is clamped to $M \le N$: a chain token can depend on at most as many tokens as exist when it is generated.</aside>
+
+  <!-- ================= SECTION 2: TOKENS ================= -->
+  <h2><span class="section-number">2</span>Realizing the tokens</h2>
+  <p>The DAG says <em>who</em> depends on whom. The token processor $H$ says <em>what value</em> each chain token takes. Let us make this concrete: first as the abstract tokens a model trains on, then as the same chain rendered in plain words.</p>
+
+  <h3><span class="section-number">2.1</span>Abstract tokens: what the model trains on</h3>
+  <p>In the tokenized pipeline, tokens are just integer ids with no inherent meaning. To produce chain token $y_i$, the lab looks up the embeddings of its parents, pushes each through a small random fully-connected network $H$, averages, applies an activation $\sigma$, and projects back to the vocabulary by taking an inner product with the (tied) embedding matrix:</p>
+  <p>$$h_i = \sigma\!\Big(\tfrac{1}{M}\textstyle\sum_{p \in \text{pa}(y_i)} H\big(E[t_p]\big)\Big), \qquad y_i = \arg\max_{v}\; \langle h_i,\; E_v\rangle.$$</p>
+  <p>The result is deliberately <strong>opaque</strong>: the produced id carries no surface meaning. A model only ever sees token sequences, never the machinery behind them, so to predict the next token it must jointly infer three hidden pieces of ground truth from the in-context demonstrations: the causal structure $G$, the embedding matrix $E$, and the transformation $H$. The widget below makes these explicit: embeddings propagate along the DAG edges ($G$), are transformed and combined ($H$), and the resulting vector is decoded back to a token through $E^{\top}$. Difficulty is tuned by the vocabulary size and activation, the paper's <em>TokenCoverage</em> metric, which measures how often chain tokens collide. Step through one example below, and reshape the DAG itself with the $N$, $M$, $C$ sliders.</p>
+
+  <figure id="w-abstract"></figure>
+  <figcaption><b>Figure 2.1.</b> Abstract token construction, porting <code>get_output_token</code>. The embedding matrix $E$ and the FCN $H$ are fixed Gaussians; only the inputs change per example. The model sees only token sequences and must infer $G$, $E$ and $H$ together; the <code>n_inputs</code>, <code>n_parents</code>, and <code>chain_length</code> sliders reshape the underlying DAG ($G$). This is the data the custom Llama models in the paper actually meta-train on.</figcaption>
+
+  <h3><span class="section-number">2.2</span>The same chain, in words: what a pretrained LLM can read</h3>
+  <p>To validate findings on <em>real</em> models, the lab re-instantiates the very same DAG with made-up words — random strings of letters. Each chain word is built deterministically: take the second half of every parent word, concatenate, then Caesar-shift every character by a fixed <code>char_offset</code>.</p>
+  <p>$$\text{chain word} = \text{shift}_{\text{offset}}\big(\;\text{concat}_{p \in \text{pa}(y_i)} \text{secondHalf}(w_p)\;\big).$$</p>
+  <p>Now the chain is human-readable, so a pretrained model (the paper uses Qwen2.5) can infer the transformation rule and apply it. One subtlety: this word version <strong>sorts</strong> each parent list, so the rule is order-independent. The right panel shows the actual chat-template framing.</p>
+
+  <figure id="w-symbolic"></figure>
+  <figcaption><b>Figure 2.2.</b> The word construction, porting <code>create_icl_example</code> and the chat framing in <code>SymbolicDataModule</code>. It is exactly the chain from §2.1, now legible.</figcaption>
+
+  <!-- ================= SECTION 3: FRAMING ================= -->
+  <h2><span class="section-number">3</span>Framing the prompt</h2>
+  <p>An in-context prompt is a sequence of $K$ such examples. Each example can be shown <em>with</em> its chain of thought or as a <em>direct</em> answer, and the prompt can express this in two ways. One framing wraps every field in dedicated integer special tokens; the other uses a chat template with <code>think</code> / <code>final answer</code> markers and a <code>\boxed{}</code> answer at the end.</p>
+  <p>The <code>hybrid_special_token</code> strategy decides per example, by a coin flip with probability <code>cot_example_prob</code>, whether to include the chain. Drag the slider to change the mix, then flip the framing to watch that very same mixture appear in either representation, unchanged.</p>
+
+  <figure id="w-hybrid"></figure>
+  <figcaption><b>Figure 3.</b> A single $K$-example prompt. The counters mirror <code>num_cot_examples</code> / <code>num_standard_examples</code>. At <code>cot_example_prob = 1</code> every example thinks; at $0$ none do. Why mix at all? At test time CoT may be scarce, so a model that has only ever seen fully-worked examples can struggle to answer directly, which is exactly the issue that §4 goes on to examine.</figcaption>
+
+  <!-- ================= SECTION 4: RECIPE ================= -->
+  <h2><span class="section-number">4</span>To think or not to think: the CoT-Recipe</h2>
+  <p>Here is the surprise. Intuitively, more chain-of-thought supervision should only help. But when you meta-train across many tasks, flooding the prompts with CoT examples can <strong>degrade</strong> performance on novel tasks, especially when little or no CoT is available in-context at test time. Thinking, it turns out, has a hidden cost.</p>
+
+  <p>The fix is not to abandon CoT but to <em>ration</em> it. The <strong>CoT-Recipe</strong> assigns each prompt a <code>cot_example_prob</code> from its <em>index</em> with a power law:</p>
+  <p>$$p_{\text{CoT}}(\text{idx}) = \min\!\big(\text{scale}\cdot x^{\alpha} + p_0,\; p_1\big), \qquad x = \frac{\text{idx}}{N_{\text{prompts}}}.$$</p>
+  <p>One subtlety matters for reading this correctly: after these probabilities are assigned, <strong>all prompts are shuffled</strong> before training. So despite the index in the formula, there is <em>no</em> early-to-late curriculum that the model moves through. What the recipe actually controls is the overall <strong>fraction</strong> of CoT supervision in the dataset, which on average is $\tfrac{1}{\alpha + 1}$: at $\alpha = 0$ every prompt is CoT (the "always think" baseline), while large $\alpha$ leaves only a sprinkling, all in random order. Build and shuffle the dataset below to see how $\alpha$ reshapes the mix.</p>
+
+  <figure id="w-recipe"></figure>
+  <figcaption><b>Figure 4.</b> The CoT-Recipe, porting <code>PowerLawRecipe</code>. Each prompt's CoT probability is assigned from its index (the curve), then <em>all prompts are shuffled</em> (the second row), so $\alpha$ controls the overall fraction of CoT supervision rather than a training-time schedule. The same recipe governs both the tokenized and the word-based data.</figcaption>
+
+  <p>How much does it matter? In the controlled synthetic setting, careful modulation via the CoT-Recipe raises transformer accuracy on novel tasks by <strong>up to 300%</strong>, even when there are <em>no</em> CoT examples available in-context. The effect transfers: on symbolic reasoning with pretrained Qwen2.5 models, the recipe yields gains of up to <strong>130%</strong>. The lesson is not "don't think," but "don't over-train on thinking."</p>
+
+  <!-- ================= SECTION 5: USING ================= -->
+  <h2><span class="section-number">5</span>Using the framework</h2>
+  <p>Everything above is driven by a single <code>Args</code> dataclass. A dataset is generated lazily, on the fly, so training never hits an I/O bottleneck:</p>
+  <pre class="language-python"><code class="language-python">from tokenized_cot_icl.core.args import Args
+from tokenized_cot_icl.core.data import TokenizedDataset
+
+args = Args(
+    vocab_size=1024,          # size of the token vocabulary
+    n_inputs=4,               # input tokens per example (N)
+    n_parents=2,              # parents per chain token (M)
+    chain_length=3,           # length of the reasoning chain (C)
+    n_examples=1,             # examples per training sequence
+    enable_cot=True,          # include the chain-of-thought tokens
+    prompt_strategy="cot",    # how each prompt is framed
+    activation="leaky_relu",  # nonlinearity inside H
+    n_tasks=10,               # number of distinct tasks
+)
+dataset = TokenizedDataset(args=args)
+print(dataset[0])</code></pre>
+
+  <p>Experiments are collated into a <code>TASK_CARD</code> and launched with torch DDP; the CoT-Recipe sweep is just another card:</p>
+  <pre class="language-python"><code class="language-python">cot_example_prob_recipe_info = {
+    "type": "power_law",   # recipe family
+    "initial_prob": 0.0,   # p0: floor probability
+    "final_prob": 1.0,     # p1: cap probability
+    "alpha": 2,            # exponent; CoT fraction ~ 1/(alpha+1)
+    "scale": 1.0,          # multiplier on x^alpha
+}</code></pre>
+
+  <p>Trained checkpoints can be evaluated with the HuggingFace generation loop during training, or at scale with vLLM / SGLang, including the inference-time technique of <em>dropping</em> CoT spans from in-context examples to probe robustness. See the repository for the full task cards, model registry, and evaluation harness.</p>
+
+  <!-- ================= APPENDIX ================= -->
+  <div class="appendix">
+    <h2>Citations</h2>
+    <div class="bib">
+      <pre>@inproceedings{Kothapalli2025CoTICLLAB,
+  title={CoT-ICL Lab: A Synthetic Framework for Studying Chain-of-Thought
+         Learning from In-Context Demonstrations},
+  author={Vignesh Kothapalli and Hamed Firooz and Maziar Sanjabi},
+  booktitle={Annual Meeting of the Association for Computational Linguistics},
+  year={2025}
+}
+
+@article{kothapalli2025think,
+  title={To Think or Not to Think: The Hidden Cost of Meta-Training
+         with Excessive CoT Examples},
+  author={Kothapalli, Vignesh and Fatahibaarzi, Ata and Firooz, Hamed
+          and Sanjabi, Maziar},
+  journal={arXiv preprint arXiv:2512.05318},
+  year={2025}
+}</pre>
+    </div>
+  </div>
+
+</article>
+</body>
+</html>

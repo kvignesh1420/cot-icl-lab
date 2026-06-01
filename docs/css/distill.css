@@ -1,0 +1,265 @@
+/* Distill-style base: typography, reading column, sidenotes, figures, title block.
+   A hand-built homage to the distill.pub template (no web components). */
+
+:root {
+  --text: rgba(0, 0, 0, 0.82);
+  --text-strong: #0a0a0a;
+  --muted: #6b6b6b;
+  --faint: #9aa0a6;
+  --bg: #ffffff;
+  --bg-alt: #fafafa;
+  --rule: #ececec;
+  --rule-strong: #d7d7d7;
+  --link: #1c6fb3;
+  --link-hover: #0d4f87;
+
+  /* Two-track accent system (used throughout for Track A vs Track B). */
+  --track-a: #6d28d9; /* abstract / tokenized */
+  --track-a-soft: #f1ecfe;
+  --track-a-line: #d9ccf8;
+  --track-b: #0f766e; /* natural-language symbolic */
+  --track-b-soft: #e3f4f1;
+  --track-b-line: #bfe4dd;
+
+  /* Canonical token-role colors, used consistently across every figure:
+     input = slate, reasoning (intermediate thoughts) = violet, output (answer) = teal. */
+  --tok-input: #475569;        --tok-input-fill: #94a3b8;  --tok-input-soft: #eef2f6;  --tok-input-line: #cbd5e1;
+  --tok-reason: #6d28d9;       --tok-reason-fill: #8b5cf6; --tok-reason-soft: #f1ecfe; --tok-reason-line: #d9ccf8;
+  --tok-output: #0f766e;       --tok-output-fill: #14b8a6; --tok-output-soft: #e3f4f1; --tok-output-line: #99e0d3;
+
+  --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --sans: "Libre Franklin", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --col-body: 680px;
+  --col-margin: 240px;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: 18px;
+  line-height: 1.7;
+  font-feature-settings: "kern" 1, "liga" 1;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---------- Layout grid ---------- */
+.d-article {
+  display: grid;
+  grid-template-columns:
+    [screen-start] minmax(1.2rem, 1fr)
+    [body-start] minmax(0, var(--col-body))
+    [body-end margin-start] minmax(0, var(--col-margin))
+    [margin-end] minmax(1.2rem, 1fr) [screen-end];
+  column-gap: 28px;
+  padding: 0 0 6rem;
+}
+.d-article > * { grid-column: body; }
+.d-article > aside { grid-column: margin; }
+.d-article > figure,
+.d-article > .wide { grid-column: body-start / margin-end; }
+.d-article > .full-width { grid-column: screen-start / screen-end; }
+
+/* ---------- Title block ---------- */
+.d-title {
+  grid-column: body-start / margin-end;
+  padding: 4.5rem 0 1.5rem;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 2.5rem;
+}
+.d-title h1 {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 2.7rem;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: var(--text-strong);
+  margin: 0 0 0.6rem;
+}
+.d-title .subtitle {
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: 1.3rem;
+  line-height: 1.35;
+  color: var(--muted);
+  margin: 0 0 1.8rem;
+  max-width: 40ch;
+}
+.byline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.6rem 2.4rem;
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  margin-bottom: 1.4rem;
+}
+.byline .label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.66rem;
+  color: var(--faint);
+  display: block;
+  margin-bottom: 0.25rem;
+}
+.byline .value { color: var(--text); line-height: 1.4; }
+.link-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+}
+.link-row a {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  text-decoration: none;
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  padding: 0.32rem 0.9rem;
+  color: var(--text);
+  transition: background 0.15s, border-color 0.15s;
+}
+.link-row a:hover { background: var(--bg-alt); border-color: var(--faint); }
+
+/* ---------- Headings ---------- */
+h2, h3, h4 {
+  font-family: var(--sans);
+  color: var(--text-strong);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 3.2rem 0 0.4rem;
+  padding-top: 1.6rem;
+  border-top: 1px solid var(--rule);
+}
+h3 { font-size: 1.18rem; font-weight: 600; margin: 2.2rem 0 0.3rem; }
+h4 { font-size: 1rem; font-weight: 600; margin: 1.6rem 0 0.2rem; text-transform: none; }
+.section-number {
+  font-family: var(--sans);
+  color: var(--faint);
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+/* ---------- Body text ---------- */
+/* Avoid typographic widows/orphans (short last lines ending in one or two words). */
+p, li, figcaption, aside, .subtitle, .lead, td, .bib { text-wrap: pretty; }
+h1, h2, h3, h4, .widget-title { text-wrap: balance; }
+p { margin: 1.1rem 0; }
+a { color: var(--link); text-decoration: none; border-bottom: 1px solid rgba(28, 111, 179, 0.3); }
+a:hover { color: var(--link-hover); border-bottom-color: var(--link-hover); }
+strong { color: var(--text-strong); font-weight: 600; }
+em { font-style: italic; }
+hr { border: none; border-top: 1px solid var(--rule); margin: 2.5rem 0; }
+
+ul, ol { padding-left: 1.3rem; }
+li { margin: 0.4rem 0; }
+
+.lead {
+  font-size: 1.18rem;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+/* ---------- Inline + block code ---------- */
+code {
+  font-family: var(--mono);
+  font-size: 0.82em;
+  background: var(--bg-alt);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 0.08em 0.35em;
+}
+pre {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  line-height: 1.55;
+  background: #0f1117;
+  color: #e6e6e6;
+  border-radius: 8px;
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+}
+pre code { background: none; border: none; padding: 0; color: inherit; font-size: inherit; }
+/* Syntax-highlighted (§5) blocks: Prism's theme forces font-size:1em (~18px);
+   keep them small and dense like the rest of the code. */
+pre[class*="language-"],
+pre[class*="language-"] code,
+code[class*="language-"] { font-size: 0.72rem; line-height: 1.5; }
+pre[class*="language-"] { background: #0f1117; padding: 0.95rem 1.1rem; }
+
+/* ---------- Sidenotes ---------- */
+aside {
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--muted);
+  align-self: start;
+  padding-top: 0.2rem;
+  border-left: 2px solid var(--rule-strong);
+  padding-left: 0.8rem;
+}
+aside .sidenote-num { color: var(--link); font-weight: 600; }
+
+/* ---------- Figures ---------- */
+figure { margin: 2.2rem 0; }
+figcaption {
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--muted);
+  margin-top: 0.8rem;
+}
+figcaption b { color: var(--text); font-weight: 600; }
+figure img { max-width: 100%; height: auto; border-radius: 8px; display: block; }
+.hero { margin: 0.5rem 0 1rem; }
+.hero img { width: 100%; border-radius: 10px; border: 1px solid var(--rule); }
+
+/* ---------- Tables ---------- */
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; margin: 1.2rem 0; }
+th, td { text-align: left; padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--rule); }
+th { font-family: var(--sans); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+.compare-table td:first-child { font-family: var(--sans); font-size: 0.8rem; color: var(--muted); width: 24%; }
+
+/* ---------- Footer / bibliography ---------- */
+.appendix { margin-top: 3rem; }
+.appendix h2 { font-size: 1.15rem; }
+.bib { font-size: 0.82rem; color: var(--muted); }
+.bib pre { background: var(--bg-alt); color: var(--text); border: 1px solid var(--rule); }
+
+/* ---------- KaTeX sizing ---------- */
+.katex { font-size: 1em; }
+.katex-display { margin: 1.2rem 0; overflow-x: auto; overflow-y: hidden; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1080px) {
+  .d-article {
+    grid-template-columns: [screen-start] minmax(1rem, 1fr) [body-start] minmax(0, var(--col-body)) [body-end margin-end] minmax(1rem, 1fr) [screen-end];
+  }
+  .d-article > aside {
+    grid-column: body;
+    border-left: 3px solid var(--rule-strong);
+    background: var(--bg-alt);
+    border-radius: 0 6px 6px 0;
+    padding: 0.7rem 0.9rem;
+    margin: 1rem 0;
+  }
+  .d-article > figure,
+  .d-article > .wide { grid-column: body; }
+}
+@media (max-width: 640px) {
+  body { font-size: 16px; }
+  .d-title { padding-top: 2.6rem; }
+  .d-title h1 { font-size: 2rem; }
+  .d-title .subtitle { font-size: 1.1rem; }
+}
