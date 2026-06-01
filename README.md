@@ -5,12 +5,18 @@
 </div>
 <br>
 
-![](assets/cot_icl_intro.png)
+<div align="center">
+  <a href="https://kvignesh1420.github.io/cot-icl-lab/" title="Open the interactive walkthrough">
+    <img src="assets/cot_icl_hero.gif" alt="The CoT-ICL Lab pipeline: sample in-context examples from G, E, H; a transformer's attention recovers the DAG; decode the held-out answer" width="900">
+  </a>
+  <p><em><a href="https://kvignesh1420.github.io/cot-icl-lab/">▶ Explore the interactive walkthrough →</a></em></p>
+</div>
 
 ****************************************************************
 
 ## Announcements
 
+- [2026.06] :rocket: The interactive **[CoT-ICL Lab website](https://kvignesh1420.github.io/cot-icl-lab/)** is now live — explore the framework and the CoT-Recipe through interactive figures!
 - [2026.04] :tada: The ["To Think or Not to Think: The Hidden Cost of Meta-Training with Excessive CoT Examples"](https://arxiv.org/abs/2512.05318) paper has been accepted to ACL Main 2026!
 - [2025.05] :tada: The ["CoT-ICL Lab"](https://aclanthology.org/2025.acl-long.712/) paper has been accepted to ACL Main 2025!
 

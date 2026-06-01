@@ -40,7 +40,7 @@ docs/
     recipe.js             # PowerLawRecipe.get_value
     widgets/*.js          # one mount() per interactive
     main.js               # mounts widgets, renders math
-  assets/cot_icl_intro.png
+  assets/cot_icl_hero.png   # static hero snapshot (social-preview / og:image)
 ```
 
 Each interactive is a faithful browser port of the corresponding Python in
