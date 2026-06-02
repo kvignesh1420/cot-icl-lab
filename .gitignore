@@ -173,3 +173,5 @@ cython_debug/
 
 # ruff cache
 .ruff_cache/
+
+misc/
