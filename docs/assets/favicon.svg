@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- CoT-ICL Lab favicon: a tiny causal DAG (G) on the site's dark ink -->
+  <rect width="64" height="64" rx="13" fill="#1b1f23"/>
+  <g stroke="#8a8f98" stroke-width="3" fill="none">
+    <path d="M18 20 L32 32"/>
+    <path d="M18 44 L32 32"/>
+    <path d="M32 32 L48 32"/>
+  </g>
+  <circle cx="18" cy="20" r="7" fill="#e8eaed"/>
+  <circle cx="18" cy="44" r="7" fill="#e8eaed"/>
+  <circle cx="32" cy="32" r="7" fill="#d97757"/>
+  <circle cx="48" cy="32" r="7" fill="#b3261e"/>
+</svg>

@@ -4,21 +4,95 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>CoT-ICL Lab: A Synthetic Framework for Chain-of-Thought In-Context Learning</title>
-  <meta name="description" content="An interactive explainer for CoT-ICL Lab: how synthetic DAGs and token processors generate chain-of-thought in-context examples, and the hidden cost of excessive CoT during meta-training (the CoT-Recipe)." />
+  <meta name="description" content="Interactive explainer for CoT-ICL Lab (ACL 2025) and the CoT-Recipe (ACL 2026): how synthetic causal DAGs and token processors generate chain-of-thought in-context examples, why meta-training on excessive CoT hurts novel-task accuracy, and how tuning the CoT fraction fixes it — with results on transformers trained from scratch and pretrained Qwen2.5." />
+  <link rel="canonical" href="https://kvignesh1420.github.io/cot-icl-lab/" />
+
+  <!-- Icons -->
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="CoT-ICL Lab" />
+  <meta property="og:locale" content="en_US" />
   <meta property="og:url" content="https://kvignesh1420.github.io/cot-icl-lab/" />
   <meta property="og:title" content="CoT-ICL Lab: an interactive explainer" />
   <meta property="og:description" content="Manipulate the causal DAG, watch a chain-of-thought example get constructed two ways, and explore the CoT-Recipe curriculum." />
   <meta property="og:image" content="https://kvignesh1420.github.io/cot-icl-lab/assets/cot_icl_hero.png" />
   <meta property="og:image:width" content="1800" />
   <meta property="og:image:height" content="610" />
+  <meta property="og:image:alt" content="The CoT-ICL Lab pipeline: a causal DAG, embeddings, and a token processor generate in-context examples; a transformer's attention map recovers the DAG edges." />
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="CoT-ICL Lab: an interactive explainer" />
   <meta name="twitter:description" content="Manipulate the causal DAG, watch a chain-of-thought example get constructed two ways, and explore the CoT-Recipe curriculum." />
   <meta name="twitter:image" content="https://kvignesh1420.github.io/cot-icl-lab/assets/cot_icl_hero.png" />
+  <meta name="twitter:image:alt" content="The CoT-ICL Lab pipeline: a causal DAG, embeddings, and a token processor generate in-context examples; a transformer's attention map recovers the DAG edges." />
+
+  <!-- Structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://kvignesh1420.github.io/cot-icl-lab/#website",
+        "url": "https://kvignesh1420.github.io/cot-icl-lab/",
+        "name": "CoT-ICL Lab",
+        "description": "A synthetic framework for studying chain-of-thought learning from in-context demonstrations."
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://kvignesh1420.github.io/cot-icl-lab/#webpage",
+        "url": "https://kvignesh1420.github.io/cot-icl-lab/",
+        "name": "CoT-ICL Lab: A Synthetic Framework for Chain-of-Thought In-Context Learning",
+        "isPartOf": { "@id": "https://kvignesh1420.github.io/cot-icl-lab/#website" },
+        "primaryImageOfPage": "https://kvignesh1420.github.io/cot-icl-lab/assets/cot_icl_hero.png",
+        "inLanguage": "en",
+        "about": [
+          { "@id": "https://kvignesh1420.github.io/cot-icl-lab/#paper2025" },
+          { "@id": "https://kvignesh1420.github.io/cot-icl-lab/#paper2026" }
+        ]
+      },
+      {
+        "@type": "ScholarlyArticle",
+        "@id": "https://kvignesh1420.github.io/cot-icl-lab/#paper2025",
+        "headline": "CoT-ICL Lab: A Synthetic Framework for Studying Chain-of-Thought Learning from In-Context Demonstrations",
+        "author": [
+          { "@type": "Person", "name": "Vignesh Kothapalli" },
+          { "@type": "Person", "name": "Hamed Firooz" },
+          { "@type": "Person", "name": "Maziar Sanjabi" }
+        ],
+        "datePublished": "2025",
+        "url": "https://aclanthology.org/2025.acl-long.712/",
+        "sameAs": "https://arxiv.org/abs/2502.15132",
+        "isPartOf": { "@type": "PublicationVolume", "name": "Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics" }
+      },
+      {
+        "@type": "ScholarlyArticle",
+        "@id": "https://kvignesh1420.github.io/cot-icl-lab/#paper2026",
+        "headline": "To Think or Not to Think: The Hidden Cost of Meta-Training with Excessive CoT Examples",
+        "author": [
+          { "@type": "Person", "name": "Vignesh Kothapalli" },
+          { "@type": "Person", "name": "Ata Fatahibaarzi" },
+          { "@type": "Person", "name": "Hamed Firooz" },
+          { "@type": "Person", "name": "Maziar Sanjabi" }
+        ],
+        "datePublished": "2025-12",
+        "url": "https://arxiv.org/abs/2512.05318",
+        "sameAs": "https://arxiv.org/abs/2512.05318"
+      },
+      {
+        "@type": "SoftwareSourceCode",
+        "@id": "https://kvignesh1420.github.io/cot-icl-lab/#code",
+        "name": "cot-icl-lab",
+        "codeRepository": "https://github.com/kvignesh1420/cot-icl-lab",
+        "programmingLanguage": "Python",
+        "license": "https://github.com/kvignesh1420/cot-icl-lab/blob/main/LICENSE"
+      }
+    ]
+  }
+  </script>
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
