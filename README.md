@@ -199,17 +199,19 @@ $ cd src && pixi run -e cuda python tokenized_cot_icl/inference/sglang/evaluator
 ## Citation
 
 ```bibtex
-@article{kothapalli2025think,
+@inproceedings{kothapalli2026think,
   title={To Think or Not to Think: The Hidden Cost of Meta-Training with Excessive CoT Examples},
   author={Kothapalli, Vignesh and Fatahibaarzi, Ata and Firooz, Hamed and Sanjabi, Maziar},
-  journal={arXiv preprint arXiv:2512.05318},
-  year={2025}
+  booktitle={Proceedings of the 64th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)},
+  pages={15619--15644},
+  year={2026}
 }
 
-@inproceedings{Kothapalli2025CoTICLLAB,
+@inproceedings{kothapalli2025cot,
   title={CoT-ICL Lab: A Synthetic Framework for Studying Chain-of-Thought Learning from In-Context Demonstrations},
-  author={Vignesh Kothapalli and Hamed Firooz and Maziar Sanjabi},
-  booktitle={Annual Meeting of the Association for Computational Linguistics},
-  year={2025},
+  author={Kothapalli, Vignesh and Firooz, Hamed and Sanjabi, Maziar},
+  booktitle={Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)},
+  pages={14620--14642},
+  year={2025}
 }
 ```
